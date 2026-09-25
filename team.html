@@ -3,28 +3,449 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>The Team — LiBRE</title>
+<title>Our Team — LiBRE</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="theme.css">
+<style>
+.cx{max-width:1140px;margin:0 auto;padding:0 24px}
+.cx .wrap,.cx .wrapper,.cx .inner{max-width:100%!important;padding-left:0!important;padding-right:0!important}
+.composed-hero{padding:0}
+section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)}
+@media(max-width:600px){.cx{padding:0 16px}}
+.t-hero *{box-sizing:border-box;margin:0;padding:0}
+.t-hero, .t-hero{height:100%}
+.t-hero{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;overflow:hidden}
+.t-hero .hero{min-height:100%;height:100%;display:flex;align-items:center;position:relative;padding:48px 28px;overflow:hidden}
+.t-hero .hero::before{content:'';position:absolute;top:-300px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(39,106,219,.1) 0%,transparent 60%);pointer-events:none;animation:t-hero-drift 20s ease-in-out infinite alternate}
+.t-hero .hero::after{content:'';position:absolute;bottom:-200px;left:-150px;width:600px;height:600px;background:radial-gradient(circle,rgba(123,78,175,.08) 0%,transparent 60%);pointer-events:none;animation:t-hero-drift 15s ease-in-out infinite alternate-reverse}
+@keyframes t-hero-drift{0%{transform:translate(0,0)}100%{transform:translate(40px,-30px)}}
+.t-hero .inner{position:relative;z-index:1;max-width:1100px;margin:0 auto;text-align:center}
+.t-hero .tag{display:inline-flex;align-items:center;gap:8px;background:#1e2540;border:1px solid rgba(39,106,219,.2);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:500;color:#4d8ae8;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px}
+.t-hero .tag .dot{width:6px;height:6px;background:#4d8ae8;border-radius:50%;animation:t-hero-pulse 2s infinite}
+@keyframes t-hero-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.t-hero h1{font-family:'Instrument Serif',serif;font-size:clamp(40px,7vw,72px);font-weight:400;line-height:1.05;margin-bottom:24px;letter-spacing:-.03em}
+.t-hero h1 em{font-style:italic;color:#F7BA21}
+.t-hero h1 .thin{font-weight:300;color:#94a3b8}
+.t-hero .sub{font-size:18px;color:#94a3b8;line-height:1.8;margin:0 auto;font-weight:300;max-width:760px}
+.t-hero .sub strong{color:#f1f5f9;font-weight:500}
+.t-hero .stats{display:grid;grid-template-columns:repeat(3,1fr);max-width:680px;margin:48px auto 0;border-top:1px solid rgba(255,255,255,.06);padding-top:32px}
+.t-hero .stat{padding:0 20px;border-left:1px solid rgba(255,255,255,.06)}
+.t-hero .stat:first-child{border-left:none}
+.t-hero .stat .n{font-family:'Instrument Serif',serif;font-size:36px;color:#F7BA21;line-height:1;margin-bottom:6px}
+.t-hero .stat .l{font-size:12px;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;font-weight:500}
+.t-part *{box-sizing:border-box;margin:0;padding:0}
+.t-part{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.t-part .wrap{max-width:1100px;margin:0 auto}
+.t-part .row{display:grid;gap:16px;margin-bottom:16px}
+.t-part .row.three{grid-template-columns:repeat(3,1fr)}
+.t-part .row.two{grid-template-columns:repeat(2,1fr);max-width:740px;margin-left:auto;margin-right:auto}
+.t-part .row:last-child{margin-bottom:0}
+.t-part .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:26px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.t-part .card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.t-part .card.libre::after{background:#276ADB}
+.t-part .card.nalcab::after{background:#F7BA21}
+.t-part .card.laane::after{background:#D2333F}
+.t-part .card.csulb::after{background:#7B4EAF}
+.t-part .card.dslc::after{background:#34d399}
+.t-part .org{font-size:17px;font-weight:600;margin-bottom:4px;color:#f1f5f9}
+.t-part .role{font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:14px;text-transform:uppercase;letter-spacing:1.5px}
+.t-part .card.libre .role{color:#4d8ae8}
+.t-part .card.nalcab .role{color:#F7BA21}
+.t-part .card.laane .role{color:#e57078}
+.t-part .card.csulb .role{color:#9b75c4}
+.t-part .card.dslc .role{color:#34d399}
+.t-part p{font-size:13px;color:#94a3b8;line-height:1.65;font-weight:300;margin-bottom:auto;padding-bottom:14px}
+.t-part p a{color:#4d8ae8;font-size:inherit;font-weight:400;letter-spacing:0;text-decoration:underline;text-decoration-color:rgba(77,138,232,.4);text-underline-offset:2px}
+.t-part p a:hover{text-decoration-color:#4d8ae8}
+.t-part a{color:#4d8ae8;text-decoration:none;font-size:12px;font-weight:500;letter-spacing:.3px}
+.t-part a:hover{text-decoration:underline}
+@media(max-width:780px){.t-part .row.three, .t-part .row.two{grid-template-columns:1fr;max-width:none}}
+.t-cards *{box-sizing:border-box;margin:0;padding:0}
+.t-cards{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.t-cards .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1100px;margin:0 auto}
+.t-cards .tp{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:24px 20px;text-align:center;position:relative;overflow:hidden}
+.t-cards .tp::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
+.t-cards .tp:nth-child(1)::after{background:#276ADB}
+.t-cards .tp:nth-child(2)::after{background:#F7BA21}
+.t-cards .tp:nth-child(3)::after{background:#7B4EAF}
+.t-cards .tp:nth-child(4)::after{background:#34d399}
+.t-cards .avatar{width:64px;height:64px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:22px;font-weight:400}
+.t-cards .tp:nth-child(1) .avatar{background:rgba(39,106,219,.15);color:#4d8ae8}
+.t-cards .tp:nth-child(2) .avatar{background:rgba(247,186,33,.15);color:#F7BA21}
+.t-cards .tp:nth-child(3) .avatar{background:rgba(123,78,175,.15);color:#7B4EAF}
+.t-cards .tp:nth-child(4) .avatar{background:rgba(52,211,153,.15);color:#34d399}
+.t-cards h3{font-size:16px;font-weight:600;margin-bottom:3px;color:#f1f5f9}
+.t-cards .title{font-size:11px;color:#94a3b8;margin-bottom:10px;font-weight:500;text-transform:uppercase;letter-spacing:1px;line-height:1.4}
+.t-cards p{font-size:12px;color:#94a3b8;line-height:1.6;font-weight:300}
+@media(max-width:900px){.t-cards .grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.t-cards .grid{grid-template-columns:1fr}}
+.t-col *{box-sizing:border-box;margin:0;padding:0}
+.t-col{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.t-col .wrap{max-width:1100px;margin:0 auto}
+.t-col .intro{text-align:center;max-width:720px;margin:0 auto 28px}
+.t-col .intro p{font-size:14px;color:#94a3b8;line-height:1.7;font-weight:300}
+.t-col .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:860px;margin:0 auto}
+.t-col .c{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:24px;position:relative;display:flex;flex-direction:column}
+.t-col .c::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:12px 0 0 12px}
+.t-col .c.env::before{background:#34d399}
+.t-col .c.clt::before{background:#7B4EAF}
+.t-col .c.tbd::before{background:rgba(148,163,184,.25)}
+.t-col .c.tbd{opacity:.55;border-style:dashed}
+.t-col .c.tbd::after{content:'OPEN SLOT';position:absolute;top:14px;right:18px;font-size:9px;color:#64748b;letter-spacing:1.5px;font-weight:600}
+.t-col .head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.t-col .avatar{width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:18px}
+.t-col .c.env .avatar{background:rgba(52,211,153,.12);color:#34d399}
+.t-col .c.clt .avatar{background:rgba(123,78,175,.12);color:#9b75c4}
+.t-col .c.tbd .avatar{background:rgba(148,163,184,.08);color:#64748b}
+.t-col .head h3{font-size:15px;font-weight:600;color:#f1f5f9;margin-bottom:1px}
+.t-col .head .r{font-size:11px;color:#94a3b8;font-weight:500;text-transform:uppercase;letter-spacing:1px}
+.t-col .proj{font-size:11px;color:#34d399;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.t-col .c.clt .proj{color:#9b75c4}
+.t-col h4{font-size:15px;font-weight:600;color:#f1f5f9;margin-bottom:8px}
+.t-col p{font-size:13px;color:#94a3b8;line-height:1.65;font-weight:300;margin-bottom:auto;padding-bottom:14px}
+.t-col .credit{font-size:11px;color:#64748b;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);line-height:1.5}
+.t-col .credit strong{color:#94a3b8;font-weight:500}
+@media(max-width:880px){.t-col .grid{grid-template-columns:1fr}}
+.t-dslc *{box-sizing:border-box;margin:0;padding:0}
+.t-dslc{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.t-dslc .wrap{max-width:1100px;margin:0 auto}
+.t-dslc .intro{display:grid;grid-template-columns:380px 1fr;gap:32px;margin-bottom:40px;align-items:start}
+.t-dslc .flyer{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;padding:12px}
+.t-dslc .flyer img{width:100%;display:block;border-radius:6px}
+.t-dslc .flyer .cap{font-size:11px;color:#64748b;text-align:center;padding:10px 4px 4px;letter-spacing:.5px}
+.t-dslc .intro-text{padding-top:8px}
+.t-dslc .eyebrow{display:inline-block;font-size:11px;font-weight:600;color:#34d399;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.t-dslc h2{font-family:'Instrument Serif',serif;font-size:30px;font-weight:400;margin-bottom:16px;line-height:1.15}
+.t-dslc .lede{font-size:15px;color:#cbd5e1;line-height:1.85;margin-bottom:14px;font-weight:300}
+.t-dslc .lede strong{color:#f1f5f9;font-weight:500}
+.t-dslc .intro-text p{font-size:14px;color:#94a3b8;line-height:1.75;font-weight:300}
+.t-dslc .section-label{font-size:11px;font-weight:600;color:#34d399;letter-spacing:2px;text-transform:uppercase;margin:0 0 16px 4px}
+.t-dslc .faculty{background:#1e2540;border:1px solid rgba(52,211,153,.2);border-radius:12px;padding:24px 26px;margin-bottom:28px;display:flex;align-items:center;gap:22px}
+.t-dslc h
+.faculty .avatar{width:72px;height:72px;border-radius:50%;flex-shrink:0;background:rgba(52,211,153,.15);color:#34d399;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:26px}
+.t-dslc .faculty .info h3{font-size:18px;font-weight:600;color:#f1f5f9;margin-bottom:3px}
+.t-dslc .faculty .info .r{font-size:12px;color:#34d399;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:6px}
+.t-dslc .faculty .info p{font-size:13px;color:#94a3b8;line-height:1.6;font-weight:300}
+.t-dslc .students{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px}
+.t-dslc .s{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:22px 18px;text-align:center;position:relative;overflow:hidden}
+.t-dslc .s::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:#34d399}
+.t-dslc .s .avatar{width:56px;height:56px;border-radius:50%;margin:0 auto 12px;background:rgba(52,211,153,.12);color:#34d399;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:20px}
+.t-dslc .s h3{font-size:15px;font-weight:600;color:#f1f5f9;margin-bottom:2px}
+.t-dslc .s .prog{font-size:12px;color:#94a3b8;font-weight:500;margin-bottom:4px}
+.t-dslc .s .inst{font-size:11px;color:#64748b;letter-spacing:.3px}
+.t-dslc .projects{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:28px}
+.t-dslc .proj{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:24px;position:relative}
+.t-dslc .proj .num{font-family:'Instrument Serif',serif;font-size:36px;line-height:1;color:#34d399;opacity:.5;position:absolute;top:18px;right:22px}
+.t-dslc .proj h4{font-size:16px;font-weight:600;color:#f1f5f9;margin-bottom:6px;padding-right:50px}
+.t-dslc .proj .tools{font-size:11px;color:#34d399;letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+.t-dslc .proj p{font-size:13px;color:#94a3b8;line-height:1.65;font-weight:300}
+.t-dslc .deck-links{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:22px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.t-dslc .deck-links .lbl{font-size:13px;color:#94a3b8;font-weight:300}
+.t-dslc .deck-links .lbl strong{color:#f1f5f9;font-weight:500;display:block;margin-bottom:2px;font-size:14px}
+.t-dslc .deck-links a{display:inline-block;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.25);color:#34d399;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:500;text-decoration:none;letter-spacing:.5px;margin-left:8px}
+.t-dslc .deck-links a:hover{background:rgba(52,211,153,.18)}
+@media(max-width:880px){.t-dslc .intro{grid-template-columns:1fr}
+.t-dslc .students{grid-template-columns:repeat(2,1fr)}
+.t-dslc .projects{grid-template-columns:1fr}}
+@media(max-width:520px){.t-dslc .students{grid-template-columns:1fr}}
+.t-org *{box-sizing:border-box;margin:0;padding:0}
+.t-org{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.t-org .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:44px;max-width:900px;margin:0 auto}
+.t-org .eyebrow{display:inline-block;font-size:11px;font-weight:600;color:#4d8ae8;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px}
+.t-org h2{font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;margin-bottom:22px;line-height:1.15}
+.t-org h2 em{font-style:italic;color:#F7BA21}
+.t-org p{font-size:15px;color:#cbd5e1;line-height:1.85;margin-bottom:16px;font-weight:300}
+.t-org p:last-child{margin-bottom:0}
+.t-org strong{color:#f1f5f9;font-weight:500}
+.t-org .note a{color:#4d8ae8;text-decoration:underline;text-decoration-color:rgba(77,138,232,.4);text-underline-offset:2px}
+.t-org .note a:hover{text-decoration-color:#4d8ae8}
+.t-org .note{margin-top:28px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06);font-size:13px;color:#64748b;line-height:1.7}
+.t-upd *{box-sizing:border-box;margin:0;padding:0}
+.t-upd{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:40px 28px;text-align:center}
+.t-upd .bar{display:inline-flex;align-items:center;gap:14px;background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px 32px;margin-bottom:24px}
+.t-upd .dots{display:flex;gap:5px;align-items:center}
+.t-upd .dots span{display:block;width:36px;height:5px;border-radius:3px;background:#252d4a;position:relative;overflow:hidden}
+.t-upd .dots span::after{content:'';position:absolute;top:0;left:0;height:100%;border-radius:3px;animation:t-upd-load 3s ease-in-out infinite}
+.t-upd .dots span:nth-child(1)::after{width:100%;background:#276ADB;animation-delay:0s}
+.t-upd .dots span:nth-child(2)::after{width:80%;background:#F7BA21;animation-delay:.2s}
+.t-upd .dots span:nth-child(3)::after{width:60%;background:#7B4EAF;animation-delay:.4s}
+.t-upd .dots span:nth-child(4)::after{width:40%;background:#34d399;animation-delay:.6s}
+@keyframes t-upd-load{0%,100%{opacity:.3}50%{opacity:1}}
+.t-upd .txt{font-size:13px;font-weight:600;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase}
+.t-upd .note{font-size:13px;color:#64748b;line-height:1.75;max-width:600px;margin:0 auto}
+.t-upd .note a{color:#4d8ae8;text-decoration:none;font-weight:500}
+.t-upd .note a:hover{text-decoration:underline}
+.t-upd .note strong{color:#94a3b8;font-weight:500}
+</style>
 </head>
 <body>
-<header class="hero">
-  <div class="wrap">
-    <div class="tag" style="color:#34d399"><span class="pulse"></span>Our Organization</div>
-    <h1 class="display">The <em>Team</em></h1>
-    <p class="lead">The people, partners, and coalitions behind LiBRE — organizers, researchers, and residents building tenant power in Long Beach.</p>
+<div class="cx t-hero">
+<section class="hero"><div class="inner">
+  <div class="tag"><span class="dot"></span>Est. 2019 &nbsp;·&nbsp; Six years of housing data work</div>
+  <h1><span class="thin">The people behind</span><br>the <em>movement.</em></h1>
+  <p class="sub">LiBRE's housing justice platform began as a graduate research project in 2019 and grew into a citywide public tool — built by tenants, organizers, analysts, and student contributors working alongside the renters this work serves.</p>
+  <div class="stats">
+    <div class="stat"><div class="n">2019</div><div class="l">Project origins</div></div>
+    <div class="stat"><div class="n">2022</div><div class="l">Public platform begins</div></div>
+    <div class="stat"><div class="n">2023</div><div class="l">Community launch</div></div>
   </div>
-</header>
-<section class="block">
-  <div class="wrap">
-    <div class="card" style="max-width:680px">
-      <div class="tag-sm">Migrating to this site</div>
-      <h3 style="font-family:var(--serif);font-weight:400;font-size:24px">Interactive tools moving in</h3>
-      <p style="margin:10px 0 18px">This section's full interactive maps and charts are being rebuilt directly into the new site — no more embedded frames. In the meantime you can view the current live version.</p>
-      <a class="btn ghost" href="https://weare-libre.hub.arcgis.com/pages/our-team" target="_blank" rel="noopener">View current version <span class="arr">→</span></a>
+</div></section>
+</div>
+<div class="cx t-part">
+<div class="wrap">
+
+  <div class="row three">
+    <div class="card libre">
+      <div class="org">Long Beach Residents Empowered</div>
+      <div class="role">Housing justice · Founded 2016</div>
+      <p>LiBRE connects renters with the tools, knowledge, and power to fight for housing justice in Long Beach and beyond. Through 40+ workshops, LiBRE has reached 18,000+ renters and advocated $2M for eviction defense, while leading research, policy work, and community organizing across the city.</p>
+      <a href="https://www.wearelbre.org/">wearelbre.org &rarr;</a>
+    </div>
+
+    <div class="card nalcab">
+      <div class="org">NALCAB</div>
+      <div class="role">Funder · 2022 grantor</div>
+      <!-- TBD: Tighten one-line description of NALCAB's specific grant scope. Current language is general public knowledge. -->
+      <p>The National Association for Latino Community Asset Builders is a network of mission-driven organizations advancing housing, finance, and economic equity in Latino communities. NALCAB provided the initial grant that funded LiBRE's housing violations data work and the public-facing data platform.</p>
+      <a href="https://nalcab.org/">nalcab.org &rarr;</a>
+    </div>
+
+    <div class="card laane">
+      <div class="org">LAANE</div>
+      <div class="role">Coalition partner · Block the Cuts campaign</div>
+      <p>The Los Angeles Alliance for a New Economy organizes coalitions of community groups, labor, and faith leaders to advance economic justice. LiBRE and LAANE are collaborating on data and analysis for the <a href="https://www.wearelbre.org/build-long-beach">Block the Cuts campaign</a> &mdash; a Long Beach parcel tax proposal to fund affordable housing, emergency services, and infrastructure, sponsored alongside the Long Beach Firefighters Association.</p>
+      <a href="https://www.laane.org/">laane.org &rarr;</a>
     </div>
   </div>
-</section>
+
+  <div class="row two">
+    <div class="card csulb">
+      <div class="org">CSULB Department of Geography</div>
+      <div class="role">Academic origins · MSGISci program</div>
+      <!-- TBD: User may want to refine framing - the relationship is informal/individual-faculty rather than institutional. -->
+      <p>The Department of Geography at California State University, Long Beach is the academic home where this project began &mdash; the MSGISci program produced the original 2019 thesis work and has continued to be a source of student researchers and faculty collaborators advancing housing justice through applied GIS.</p>
+      <a href="https://www.csulb.edu/department-of-geography">csulb.edu/department-of-geography &rarr;</a>
+    </div>
+
+    <div class="card dslc">
+      <div class="org">LB&ndash;C Data Science Learning Community</div>
+      <div class="role">Research network · Student projects</div>
+      <!-- TBD: Confirm formal name, governance structure, and primary host institution. -->
+      <p>A multi-organization data science research program connecting students from CSULB, CSUN, Compton College, LBCC, LBUSD, and CUSD with community partners including LiBRE, Color Compton, Center for Health Equity Research, Firme Coding, and the Long Beach Office of Equity. LiBRE hosts annual student research projects through the network.</p>
+      <a href="#dslc-section">See the team &darr;</a>
+    </div>
+  </div>
+
+</div>
+</div>
+<div class="cx t-cards">
+<div class="grid">
+  <div class="tp">
+    <div class="avatar">AD</div>
+    <h3>Andre D.</h3>
+    <div class="title">Executive Director, LiBRE</div>
+    <p>Leading LiBRE's mission to advance housing justice through organizing, policy advocacy, and community empowerment across Long Beach.</p>
+  </div>
+  <div class="tp">
+    <div class="avatar">KO</div>
+    <h3>Kevin O'Sullivan</h3>
+    <div class="title">GIS Analyst, LiBRE</div>
+    <p>Builds and maintains LiBRE's data platform &mdash; from the interactive maps and eviction dashboards to ownership analysis, Census visualizations, and the public Hub site.</p>
+  </div>
+  <div class="tp">
+    <div class="avatar">NA</div>
+    <h3>Nazir A.</h3>
+    <div class="title">ED, LB CLT &middot; Partner</div>
+    <p>Leads the Long Beach Community Land Trust's work to create permanently affordable, community-owned housing and prevent displacement &mdash; in close coordination with LiBRE.</p>
+  </div>
+  <div class="tp">
+    <div class="avatar">GH</div>
+    <h3>Dr. Gary Hytrek</h3>
+    <div class="title">Board Member, LiBRE &middot; CSULB Geography</div>
+    <p>Provides academic guidance, board-level oversight, and the connection to CSULB Geography &mdash; advising on research methodology, student collaborations, and the broader academic dimensions of LiBRE's data work.</p>
+  </div>
+</div>
+</div>
+<div class="cx t-col">
+<div class="wrap">
+
+  <div class="intro">
+    <p>Beyond LiBRE staff and our partner network, individual student contributors are actively building specific projects within the platform. Each is credited here by name and project so their work is findable beyond graduation.</p>
+  </div>
+
+  <div class="grid">
+
+    <div class="c env">
+      <div class="head">
+        <div class="avatar">SF</div>
+        <div>
+          <h3>Samuel Flexo</h3>
+          <div class="r">Student Assistant &middot; CSULB</div>
+        </div>
+      </div>
+      <div class="proj">In development</div>
+      <h4>Environmental Impact Dashboard</h4>
+      <!-- TBD: Tighten project scope description with Samuel's specific focus areas. -->
+      <p>Building a citywide dashboard surfacing environmental impacts on Long Beach communities &mdash; including air quality indicators and other environmental health data layered over census and housing geographies.</p>
+      <div class="credit">Guided by <strong>Dr. Gary Hytrek</strong> &middot; CSULB</div>
+    </div>
+
+    <div class="c clt">
+      <div class="head">
+        <div class="avatar">PL</div>
+        <div>
+          <h3>Paul Labelle</h3>
+          <div class="r">Collaborator &middot; LB Community Land Trust</div>
+        </div>
+      </div>
+      <div class="proj">Ongoing</div>
+      <h4>CLT Mapping Initiative</h4>
+      <!-- TBD: Fill in specifics of the CLT mapping project (scope, deliverables, stage). -->
+      <p>Producing maps and spatial analysis in support of Long Beach CLT's acquisition, organizing, and outreach work &mdash; helping identify properties, parcels, and neighborhoods most aligned with the community land trust model.</p>
+      <div class="credit">Partner project with <strong>Long Beach CLT</strong></div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+<div class="cx t-dslc">
+<div class="wrap" id="dslc-section">
+
+  <div class="intro">
+    <div class="flyer">
+      <img src="dslc-flyer.png" alt="LB-Compton Data Science Learning Community Research Presentations flyer">
+      <div class="cap">Research presentations &middot; CSULB Hall of Science &middot; Aug 2025</div>
+    </div>
+    <div class="intro-text">
+      <div class="eyebrow">Summer 2025 cohort</div>
+      <h2>Long Beach&ndash;Compton Data Science Learning Community</h2>
+      <p class="lede">A six-student research cohort &mdash; faculty-guided, community-partnered &mdash; that spent summer 2025 turning <strong>LiBRE's housing data</strong> into spatial analyses, hotspot maps, and policy questions. Their work explored eviction rates against historical redlining, rent burden distribution, opportunity zone outcomes, and the community storytelling behind the numbers.</p>
+      <p>The DSLC is a multi-institution program connecting students with community partners. The full network includes Color Compton, the Center for Health Equity Research, Firme Coding, the Long Beach Office of Equity, and faculty from CSULB and CSUN.</p>
+    </div>
+  </div>
+
+  <div class="section-label">Faculty advisor</div>
+  <div class="faculty">
+    <div class="avatar">JO</div>
+    <div class="info">
+      <h3>Jonathan Pando Ocón</h3>
+      <div class="r">Faculty Lead &middot; CSULB Geography</div>
+      <p>Advised the summer 2025 cohort's housing research projects with LiBRE, coordinating methodology, supervision, and the final presentations across all four research tracks.</p>
+    </div>
+  </div>
+
+  <div class="section-label">Student researchers</div>
+  <div class="students">
+
+    <div class="s">
+      <div class="avatar">BP</div>
+      <h3>Brandon Pacheco</h3>
+      <div class="prog">High School Researcher</div>
+      <div class="inst">Cabrillo High School</div>
+    </div>
+
+    <div class="s">
+      <div class="avatar">AV</div>
+      <h3>Areli Valentin</h3>
+      <div class="prog">Management Info Systems</div>
+      <div class="inst">CSULB</div>
+    </div>
+
+    <div class="s">
+      <div class="avatar">DW</div>
+      <h3>Dillon Wilson</h3>
+      <div class="prog">Statistics</div>
+      <div class="inst">CSULB</div>
+    </div>
+
+    <div class="s">
+      <div class="avatar">EV</div>
+      <h3>Ernesto Villalpando</h3>
+      <div class="prog">MS Applied Statistics</div>
+      <div class="inst">CSULB</div>
+    </div>
+
+    <div class="s">
+      <div class="avatar">RD</div>
+      <h3>Raminder Singh Dubb</h3>
+      <div class="prog">MS Applied Statistics</div>
+      <div class="inst">CSULB</div>
+    </div>
+
+    <div class="s">
+      <div class="avatar">TH</div>
+      <h3>Truc (Tina) Hoang</h3>
+      <div class="prog">MS Applied Statistics</div>
+      <div class="inst">CSULB</div>
+    </div>
+
+  </div>
+
+  <div class="section-label">Research tracks</div>
+  <div class="projects">
+
+    <div class="proj">
+      <div class="num">01</div>
+      <h4>Evictions &times; Redlining</h4>
+      <div class="tools">Spatial analysis &middot; Hotspot mapping</div>
+      <p>Spatial overlay of eviction filings against 1939 HOLC redlining maps and 2020 Census demographic data &mdash; testing the relationship between historic disinvestment and present-day eviction concentration during and after COVID-19.</p>
+    </div>
+
+    <div class="proj">
+      <div class="num">02</div>
+      <h4>Community Storytelling</h4>
+      <div class="tools">Narrative &middot; Story maps</div>
+      <p>"You can evict people, not memories." A narrative track translating the eviction data into community-facing storytelling about displacement, memory, and the people behind the filings.</p>
+    </div>
+
+    <div class="proj">
+      <div class="num">03</div>
+      <h4>Rent Burden &amp; Contracts</h4>
+      <div class="tools">Web scraping &middot; Ridgeline plots</div>
+      <p>Mapping changes in the overall distribution of rental contracts over time using Zillow listings, ACS data, and historical redlining boundaries &mdash; with simulated data filling gaps where historical contract data sits behind paywalls.</p>
+    </div>
+
+    <div class="proj">
+      <div class="num">04</div>
+      <h4>Policy &amp; Land Use</h4>
+      <div class="tools">RHNA data &middot; OZ analysis</div>
+      <p>Examining whether housing policies like Opportunity Zones, ADU laws, and density bonuses actually increase development and affordability in Long Beach &mdash; comparing housing permit trends in policy-targeted versus non-targeted areas.</p>
+    </div>
+
+  </div>
+
+  <div class="deck-links">
+    <div class="lbl">
+      <strong>Final research presentations</strong>
+      End-of-cohort presentations, July 11, 2025
+    </div>
+    <div>
+      <a href="https://docs.google.com/presentation/d/1YitB-aBE90M36PGuVUajePezoUIyZY1ps62ke2y4uXM/edit" target="_blank" rel="noopener">View the deck &rarr;</a>
+    </div>
+  </div>
+
+</div>
+</div>
+<div class="cx t-org">
+<div class="card">
+  <div class="eyebrow">From thesis to public platform</div>
+  <h2>Six years in the <em>making.</em></h2>
+  <p>In fall 2019, two CSULB MSGISci students &mdash; <strong>Ali Kazmi</strong> and <strong>Salena Tach</strong> &mdash; set out to solve a specific problem: Long Beach had no public way to track which rental properties had histories of code violations or eviction filings. Their graduate thesis became the city's first interactive housing-conditions map &mdash; the seed of everything that followed.</p>
+  <p>In June 2022, LiBRE hired <strong>Kevin O'Sullivan</strong>, another CSULB MSGISci graduate, to expand that initial work into a full data and mapping program &mdash; supported by an early grant from <strong>NALCAB</strong> to build out tenant-facing tools, dashboards, and the underlying violations dataset.</p>
+  <p>The modern public-facing platform launched in <strong>2023</strong>, debuting at LiBRE's first community night. What had begun as a single map is now a network of dashboards, datasets, and analyses &mdash; eviction filings, ownership patterns, district statistics, housing conditions &mdash; built to put information in the hands of the renters who need it most.</p>
+  <div class="note">The project has since grown to include collaborations with <strong style="color:#94a3b8;">LAANE</strong> on the <a href="https://www.wearelbre.org/build-long-beach">Block the Cuts campaign</a> and the <strong style="color:#94a3b8;">Long Beach&ndash;Compton Data Science Learning Community</strong>. Each contributor is credited below.</div>
+</div>
+</div>
+<div class="cx t-upd">
+<div class="bar">
+  <div class="dots"><span></span><span></span><span></span><span></span></div>
+  <div class="txt">More contributors &middot; More updates ahead</div>
+</div>
+<p class="note">This page grows as new students and partner projects come online. If you contributed to LiBRE's data work and don't see yourself credited here, <strong>let us know</strong> &mdash; everyone who builds with us deserves to be findable. In the meantime, explore our work on the <a href="https://weare-libre.hub.arcgis.com/">GIS Hub</a> or learn more <a href="https://www.wearelbre.org/about">about LiBRE</a>.</p>
+</div>
 <script src="nav.js"></script>
+
 </body>
 </html>

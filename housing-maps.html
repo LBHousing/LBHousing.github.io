@@ -5,26 +5,266 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Housing Maps — LiBRE</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="theme.css">
+<style>
+.cx{max-width:1140px;margin:0 auto;padding:0 24px}
+.cx .wrap,.cx .wrapper,.cx .inner{max-width:100%!important;padding-left:0!important;padding-right:0!important}
+.composed-hero{padding:0}
+section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)}
+@media(max-width:600px){.cx{padding:0 16px}}
+.h-hero *{box-sizing:border-box;margin:0;padding:0}
+.h-hero, .h-hero{height:100%}
+.h-hero{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;overflow:hidden}
+.h-hero .hero{min-height:100%;height:100%;display:flex;align-items:center;position:relative;padding:48px 28px;overflow:hidden}
+.h-hero .hero::before{content:'';position:absolute;top:-200px;right:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(210,51,63,.1) 0%,transparent 60%);pointer-events:none;animation:h-hero-drift 18s ease-in-out infinite alternate}
+.h-hero .hero::after{content:'';position:absolute;bottom:-200px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(39,106,219,.12) 0%,transparent 60%);pointer-events:none;animation:h-hero-drift 14s ease-in-out infinite alternate-reverse}
+@keyframes h-hero-drift{0%{transform:translate(0,0)}100%{transform:translate(30px,-25px)}}
+.h-hero .inner{position:relative;z-index:1;max-width:800px;margin:0 auto}
+.h-hero .tag{display:inline-flex;align-items:center;gap:8px;background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:500;color:#D2333F;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px}
+.h-hero .tag .dot{width:6px;height:6px;background:#D2333F;border-radius:50%;animation:h-hero-pulse 2s infinite}
+@keyframes h-hero-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.h-hero h1{font-family:'Instrument Serif',serif;font-size:clamp(36px,6.5vw,66px);font-weight:400;line-height:1.08;margin-bottom:20px;letter-spacing:-.02em}
+.h-hero h1 em{font-style:italic;color:#D2333F}
+.h-hero h1 .thin{font-weight:300;color:#94a3b8}
+.h-hero .sub{font-size:18px;color:#94a3b8;max-width:640px;line-height:1.7;font-weight:300}
+.h-hero .sub strong{color:#f1f5f9;font-weight:500}
+@media(max-width:600px){.h-hero h1{font-size:32px}
+.h-hero .sub{font-size:16px}}
+.h-tl *{box-sizing:border-box;margin:0;padding:0}
+.h-tl{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.h-tl .wrapper{max-width:1100px;margin:0 auto}
+.h-tl .map-card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.h-tl .map-header{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
+.h-tl .map-header h3{font-size:15px;font-weight:600}
+.h-tl .map-header .tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#64748b}
+.h-tl .map-frame{width:100%;height:500px;border:none;display:block}
+.h-tl .map-legend{padding:14px 20px;border-top:1px solid rgba(255,255,255,.06);display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:#94a3b8}
+.h-tl .map-legend .dot{width:14px;height:14px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:6px}
+.h-tl .map-note{padding:0 20px 14px;font-size:11px;color:#64748b;font-style:italic}
+.h-tl .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:36px}
+.h-tl h2{font-family:'Instrument Serif',serif;font-size:28px;font-weight:400;margin-bottom:20px}
+.h-tl .timeline{position:relative;padding-left:32px;margin:24px 0}
+.h-tl .timeline::before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:rgba(255,255,255,.06)}
+.h-tl .tl-item{position:relative;margin-bottom:28px}
+.h-tl .tl-item:last-child{margin-bottom:0}
+.h-tl .tl-item::before{content:'';position:absolute;left:-32px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid #D2333F;background:#0a0e1a}
+.h-tl .tl-item.bl::before{border-color:#4d8ae8}
+.h-tl .tl-item.pp::before{border-color:#F7BA21}
+.h-tl .tl-item.gn::before{border-color:#34d399}
+.h-tl .tl-year{font-size:12px;font-weight:700;color:#F7BA21;letter-spacing:1px;margin-bottom:4px}
+.h-tl .tl-text{font-size:14px;color:#94a3b8;line-height:1.7;font-weight:300}
+.h-tl .tl-text strong{color:#f1f5f9;font-weight:500}
+.h-tl .tl-text ul{margin:8px 0 0 16px;list-style:none}
+.h-tl .tl-text ul li{position:relative;padding-left:16px;margin-bottom:4px}
+.h-tl .tl-text ul li::before{content:'';position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:#D2333F}
+.h-tl .tl-text ul li.pp-dot::before{background:#F7BA21}
+.h-tl .tl-text ul li.bl-dot::before{background:#4d8ae8}
+.h-tl .callout{background:rgba(210,51,63,.06);border-left:3px solid #D2333F;padding:14px 18px;border-radius:0 8px 8px 0;margin-top:24px;font-size:14px;color:#94a3b8}
+.h-tl .callout strong{color:#f1f5f9}
+@media(max-width:600px){.h-tl .map-frame{height:350px}}
+.h-tl html.m body{padding:0 12px}
+.h-tl html.m .card{padding:22px 18px}
+.h-tl html.m h2{font-size:23px;margin-bottom:14px}
+.h-tl html.m .map-frame{height:300px}
+.h-tl html.m .map-header{flex-direction:column;align-items:flex-start;gap:4px}
+.h-tl html.m .map-header h3{font-size:13.5px}
+.h-tl html.m .map-legend{gap:8px 14px;font-size:11px;padding:12px 16px}
+.h-tl html.m .timeline{padding-left:24px;margin:16px 0}
+.h-tl html.m .timeline::before{left:9px}
+.h-tl html.m .tl-item{margin-bottom:18px}
+.h-tl html.m .tl-item::before{left:-24px}
+.h-tl html.m .tl-year{font-size:11px}
+.h-tl html.m .tl-text{font-size:13.5px;line-height:1.58}
+.h-tl html.m .tl-text ul{margin-top:6px}
+.h-tl html.m .callout{font-size:12.5px;padding:12px 15px;margin-top:16px}
+.h-nv *{box-sizing:border-box;margin:0;padding:0}
+.h-nv{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.h-nv .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:36px;max-width:1100px;margin:0 auto}
+.h-nv h2{font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;margin-bottom:16px}
+.h-nv p{font-size:15px;color:#94a3b8;margin-bottom:14px;line-height:1.7;font-weight:300}
+.h-nv strong{color:#f1f5f9;font-weight:600}
+.h-nv .hl{background:rgba(247,186,33,.06);border-left:3px solid #F7BA21;padding:14px 18px;border-radius:0 8px 8px 0;margin-top:18px;font-size:14px;color:#94a3b8}
+.h-nv .hl strong{color:#f1f5f9}
+.h-ne *{box-sizing:border-box;margin:0;padding:0}
+.h-ne{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.h-ne .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:36px;max-width:1100px;margin:0 auto}
+.h-ne h2{font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;margin-bottom:16px}
+.h-ne p{font-size:15px;color:#94a3b8;margin-bottom:14px;line-height:1.7;font-weight:300}
+.h-ne strong{color:#f1f5f9;font-weight:600}
+.h-ne .hl{background:rgba(210,51,63,.06);border-left:3px solid #D2333F;padding:14px 18px;border-radius:0 8px 8px 0;margin-top:18px;font-size:14px;color:#94a3b8}
+.h-ne .hl strong{color:#f1f5f9}
+.h-ac *{box-sizing:border-box;margin:0;padding:0}
+.h-ac{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.h-ac a{text-decoration:none}
+.h-ac .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1100px;margin:0 auto}
+.h-ac .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:24px;transition:border-color .3s}
+.h-ac .card:hover{border-color:rgba(255,255,255,.12)}
+.h-ac .c-gn{border-top:3px solid #34d399}
+.h-ac .c-pp{border-top:3px solid #F7BA21}
+.h-ac .c-bl{border-top:3px solid #276ADB}
+.h-ac h3{font-family:'Instrument Serif',serif;font-size:20px;font-weight:400;margin-bottom:8px}
+.h-ac p{font-size:14px;color:#94a3b8;line-height:1.6;font-weight:300;margin-bottom:0}
+.h-ac strong.gn{color:#34d399;font-weight:600}
+.h-ac strong.pp{color:#F7BA21;font-weight:600}
+.h-ac .contact{font-size:13px;font-weight:600;margin-top:12px}
+.h-ac .contact.gn{color:#34d399}
+.h-ac .contact.pp{color:#F7BA21}
+.h-ac .contact.bl{color:#4d8ae8}
+@media(max-width:600px){.h-ac .grid{grid-template-columns:1fr}}
+.h-nd *{box-sizing:border-box;margin:0;padding:0}
+.h-nd{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.h-nd .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:36px;max-width:1100px;margin:0 auto}
+.h-nd h2{font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;margin-bottom:16px}
+.h-nd p{font-size:15px;color:#94a3b8;margin-bottom:14px;line-height:1.7;font-weight:300}
+.h-nd strong{color:#f1f5f9;font-weight:600}
+.h-nd .hl{background:rgba(39,106,219,.06);border-left:3px solid #276ADB;padding:14px 18px;border-radius:0 8px 8px 0;margin-top:18px;font-size:14px;color:#94a3b8}
+.h-nd .hl strong{color:#f1f5f9}
+</style>
 </head>
 <body>
-<header class="hero">
-  <div class="wrap">
-    <div class="tag" style="color:#e8636d"><span class="pulse"></span>History · Redlining · Demographics</div>
-    <h1 class="display">Housing <em>Maps</em></h1>
-    <p class="lead">From the 1939 HOLC redlining map to today's violations and evictions — how disinvestment was drawn a century ago, and why the geography of housing distress still matches it.</p>
-  </div>
-</header>
-<section class="block">
-  <div class="wrap">
-    <div class="card" style="max-width:680px">
-      <div class="tag-sm">Migrating to this site</div>
-      <h3 style="font-family:var(--serif);font-weight:400;font-size:24px">Interactive tools moving in</h3>
-      <p style="margin:10px 0 18px">This section's full interactive maps and charts are being rebuilt directly into the new site — no more embedded frames. In the meantime you can view the current live version.</p>
-      <a class="btn ghost" href="https://weare-libre.hub.arcgis.com/pages/housing-maps" target="_blank" rel="noopener">View current version <span class="arr">→</span></a>
-    </div>
+<div class="cx h-hero">
+<section class="hero">
+  <div class="inner">
+    <div class="tag"><span class="dot"></span>Violations · Evictions · Displacement</div>
+    <h1><span class="thin">From redlining to</span> <em>code violations</em> <span class="thin">to</span> <em>eviction.</em><br><span class="thin">The same neighborhoods. 90 years later.</span></h1>
+    <p class="sub">Long Beach's housing crisis didn't happen by accident. The neighborhoods with the <strong>worst housing conditions</strong>, the <strong>most evictions</strong>, and the <strong>highest concentration of BIPOC renters</strong> are the same communities that were redlined nearly a century ago. This page connects that through-line with data.</p>
   </div>
 </section>
+</div>
+<div class="cx h-tl">
+<div class="wrapper">
+
+  <!-- ── HOLC Redlining Map ── -->
+  <div class="map-card">
+    <div class="map-header">
+      <h3>HOLC "Residential Security" Map — Long Beach Area (1939)</h3>
+      <span class="tag">Source: Mapping Inequality · University of Richmond</span>
+    </div>
+    <!-- Mapping Inequality interactive embed centered on Long Beach -->
+    <iframe class="map-frame"
+      src="https://dsl.richmond.edu/panorama/redlining/map#loc=12/33.81/-118.19&city=los-angeles-ca"
+      title="HOLC Redlining Map of Long Beach area from the 1930s - interactive map from Mapping Inequality project"
+      allowfullscreen></iframe>
+    <div class="map-legend">
+      <span><span class="dot" style="background:#4daf4a"></span>Grade A — "Best" (green)</span>
+      <span><span class="dot" style="background:#377eb8"></span>Grade B — "Still Desirable" (blue)</span>
+      <span><span class="dot" style="background:#F7BA21"></span>Grade C — "Declining" (yellow)</span>
+      <span><span class="dot" style="background:#D2333F"></span>Grade D — "Hazardous" (red) — <strong style="color:#D2333F">redlined</strong></span>
+    </div>
+    <div class="map-note">Pan and zoom to explore Long Beach. Click any colored zone to read the original 1930s appraisal notes — including explicit references to race and "undesirable" populations.</div>
+  </div>
+
+  <!-- ── Timeline ── -->
+  <div class="card">
+    <h2>How We Got Here</h2>
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-year">1930s–1940s · Redlining</div>
+        <div class="tl-text"><strong>The Home Owners' Loan Corporation (HOLC)</strong> graded Long Beach neighborhoods by perceived "lending risk" — but race was the dominant factor. The map above shows the results: communities of color were coded <strong style="color:#D2333F">"Hazardous" (red)</strong>, cutting them off from mortgage lending and trapping residents in deteriorating housing.
+          <ul>
+            <li>Banks refused to lend in red-graded areas — no mortgages, no home equity, no wealth building</li>
+            <li>The FHA adopted similar maps, amplifying the damage across federal housing programs</li>
+            <li>HOLC appraisers explicitly cited the presence of Black, Latino, and Asian residents as risk factors</li>
+            <li class="pp-dot">Long Beach's West Side, Central, and North Long Beach were among the hardest hit</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item pp">
+        <div class="tl-year">1940s–1960s · Racial Covenants</div>
+        <div class="tl-text"><strong>Property deeds across Long Beach included legal restrictions</strong> preventing sale to Black, Latino, and Asian residents. Even after the Supreme Court struck down enforcement in 1948, the covenants remained on deeds and the segregation patterns they created were already locked in.
+          <ul>
+            <li class="pp-dot">Covenants restricted where people of color could buy, reinforcing redlined boundaries</li>
+            <li class="pp-dot">White neighborhoods received FHA-backed mortgages; redlined neighborhoods did not</li>
+            <li class="pp-dot">The wealth gap from denied homeownership compounds across generations</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item bl">
+        <div class="tl-year">1960s–1990s · The Disinvestment Cycle</div>
+        <div class="tl-text">Without access to credit, homeownership, or public investment, <strong>redlined neighborhoods entered decades of decline</strong>. Property values dropped, maintenance was deferred, and housing stock aged without reinvestment. Landlords extracted rent while investing as little as possible.
+          <ul>
+            <li class="bl-dot">Fair Housing Act of 1968 outlawed redlining — but the damage was already done</li>
+            <li class="bl-dot">Neighborhoods remained segregated by income and race through inertia and ongoing discrimination</li>
+            <li class="bl-dot">Aging buildings meant rising code violations, health hazards, and unsafe living conditions</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-year">2000s–Present · The Crisis Today</div>
+        <div class="tl-text">These same neighborhoods now have the <strong style="color:#D2333F">highest rates of code violations</strong>, the <strong style="color:#D2333F">most eviction filings</strong>, and the <strong style="color:#D2333F">greatest concentration of cost-burdened renters</strong>. Corporate entities are buying up properties in these areas, and the tenants — disproportionately BIPOC — face displacement.
+          <ul>
+            <li>53.1% of Long Beach renters are cost burdened — spending 30%+ of income on housing</li>
+            <li>24.9% of all dwelling units are now owned by LLCs, corporations, and partnerships</li>
+            <li>The Block the Cuts and Build Long Beach Ordinance aims to reinvest in these communities</li>
+            <li class="pp-dot"><strong>90 years later, the map of housing distress matches the 1939 redlining map</strong></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout"><strong>The pattern is not a coincidence.</strong> When you overlay today's code violation data, eviction heat maps, and demographic data, the geography matches the HOLC redlining map above. The disinvestment was deliberate. The consequences are ongoing. The data on this page connects the dots — from the red lines drawn in the 1930s to the eviction notices served today.</div>
+  </div>
+
+</div>
+</div>
+<section class="cx cx-block"><p class="eyebrow" style="color:var(--red)">Code Violations</p><h2>Where the buildings are failing.</h2></section>
+<div class="cx h-nv">
+<div class="card">
+  <h2>What the Violations Data Shows</h2>
+  <p>Renters and their families deserve to live in safe, healthy homes. Housing violations jeopardize that right — they represent conditions that affect health and safety as determined by law. As you explore the dashboard above, the systemic patterns become clear.</p>
+  <p><strong style="color:#F7BA21">Many of the same areas with high numbers of code violations coincide with historically disinvested parts of Long Beach</strong> that were once redlined or contained racial covenants. The buildings in these neighborhoods are older, have received less investment, and are more likely to be owned by entities focused on extracting rent rather than maintaining quality housing.</p>
+  <div class="hl"><strong>For renters:</strong> If you are living with code violations — mold, pests, broken plumbing, or other dangerous conditions — you have the right to report them. Retaliation by landlords for reporting violations is <strong>illegal under California law</strong>.</div>
+</div>
+</div>
+<section class="cx cx-block"><p class="eyebrow" style="color:var(--amber)">Evictions</p><h2>Where displacement concentrates.</h2></section>
+<div class="cx h-ne">
+<div class="card">
+  <h2>The Eviction-Violation Connection</h2>
+  <p>Evictions and housing violations are two sides of the same coin. Tenants who report violations often face <strong style="color:#D2333F">retaliatory eviction filings</strong> — even though retaliation is illegal. Meanwhile, tenants living in unsafe conditions may fall behind on rent due to related expenses (medical costs from mold, replacing broken appliances, temporary housing during repairs), putting them at risk of eviction for nonpayment.</p>
+  <p>The heat map above shows how eviction filings cluster in specific neighborhoods. When you compare this to the violations dashboard, the overlap is striking: <strong>the neighborhoods with the most code violations are the same ones with the most evictions.</strong></p>
+  <div class="hl"><strong>The cycle:</strong> Disinvestment → deteriorating conditions → violations → landlord retaliation or rent increases → eviction → displacement. This cycle repeats block by block, building by building, across the same communities that were redlined a century ago.</div>
+</div>
+</div>
+<div class="cx h-ac">
+<div class="grid">
+  <div class="card c-gn">
+    <h3>Report a Violation</h3>
+    <p>If you're living with mold, pests, broken plumbing, or other dangerous conditions, you have the right to report them. Landlord retaliation for reporting is <strong class="gn">illegal under California law</strong>.</p>
+    <p class="contact gn">Contact Long Beach Code Enforcement: 562-570-2633</p>
+  </div>
+  <div class="card c-gn">
+    <h3>Know Your Eviction Rights</h3>
+    <p>If you receive an eviction notice, <strong class="gn">do not move out immediately</strong>. You have legal rights and the eviction process takes 6-8 weeks. File an Answer within 10 court days.</p>
+    <p class="contact gn">Free legal help: Stay Housed LA · LAFLA · LiBRE workshops</p>
+  </div>
+  <div class="card c-pp">
+    <h3>Support the Ordinance</h3>
+    <p>The <strong class="pp">Block the Cuts and Build Long Beach Ordinance</strong> would fund affordable housing, fire services, and infrastructure — paid for by institutional-scale property owners, not homeowners.</p>
+    <p class="contact pp"><a href="https://www.longbeach.gov/cityclerk/elections/petitions/" style="color:#F7BA21" target="_blank">Learn about the petition →</a></p>
+  </div>
+  <div class="card c-bl">
+    <h3>Get Involved with LiBRE</h3>
+    <p>Join Know Your Rights workshops, connect with tenant organizing, and help build power for housing justice in Long Beach.</p>
+    <p class="contact bl"><a href="https://www.wearelbre.org/" style="color:#4d8ae8" target="_blank">Visit wearelbre.org →</a></p>
+  </div>
+</div>
+</div>
+<section class="cx cx-block"><p class="eyebrow" style="color:var(--blue)">Demographics</p><h2>Who lives where, and who rents.</h2></section>
+<div class="cx h-nd">
+<div class="card">
+  <h2>Housing Justice is Racial Justice</h2>
+  <p>The data makes the connection undeniable. Long Beach's <strong style="color:#7B4EAF">Black and African American</strong> community has faced a housing struggle rooted in decades of discriminatory policy. <strong style="color:#7B4EAF">Latino</strong> families face some of the highest rent burden rates in the city. <strong style="color:#7B4EAF">Southeast Asian</strong> communities — particularly Cambodian refugees who rebuilt their lives in Long Beach — are concentrated in areas with high violation counts and aging housing stock.</p>
+  <p>These patterns are not accidents of the market. They are the direct, traceable legacy of policies that determined where people of color could live, whether they could own property, and how much investment their neighborhoods would receive. Understanding this history is essential to building policies that repair the damage rather than perpetuate it.</p>
+  <div class="hl"><strong>The data tools on this page exist for a reason:</strong> to make the invisible visible. When you can see the violations, map the evictions, and overlay the demographics, the pattern becomes impossible to ignore — and impossible to dismiss.</div>
+</div>
+</div>
 <script src="nav.js"></script>
+
 </body>
 </html>

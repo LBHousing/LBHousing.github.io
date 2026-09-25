@@ -5,26 +5,510 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>District Statistics — LiBRE</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <link rel="stylesheet" href="theme.css">
+<style>
+.cx{max-width:1140px;margin:0 auto;padding:0 24px}
+.cx .wrap,.cx .wrapper,.cx .inner{max-width:100%!important;padding-left:0!important;padding-right:0!important}
+.composed-hero{padding:0}
+section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)}
+@media(max-width:600px){.cx{padding:0 16px}}
+.s-hero *{box-sizing:border-box;margin:0;padding:0}
+.s-hero, .s-hero{height:100%}
+.s-hero{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;overflow:hidden}
+.s-hero .hero{min-height:100%;height:100%;display:flex;align-items:center;position:relative;padding:48px 28px;overflow:hidden}
+.s-hero .hero::before{content:'';position:absolute;top:-300px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(39,106,219,.12) 0%,transparent 60%);pointer-events:none;animation:s-hero-drift 20s ease-in-out infinite alternate}
+.s-hero .hero::after{content:'';position:absolute;bottom:-200px;left:-150px;width:600px;height:600px;background:radial-gradient(circle,rgba(123,78,175,.1) 0%,transparent 60%);pointer-events:none;animation:s-hero-drift 15s ease-in-out infinite alternate-reverse}
+@keyframes s-hero-drift{0%{transform:translate(0,0)}100%{transform:translate(40px,-30px)}}
+.s-hero .inner{position:relative;z-index:1;max-width:1100px;margin:0 auto}
+.s-hero .tag{display:inline-flex;align-items:center;gap:8px;background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:500;color:#4d8ae8;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px}
+.s-hero .tag .dot{width:6px;height:6px;background:#4d8ae8;border-radius:50%;animation:s-hero-pulse 2s infinite}
+@keyframes s-hero-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.s-hero h1{font-family:'Instrument Serif',serif;font-size:clamp(40px,7vw,72px);font-weight:400;line-height:1.05;margin-bottom:24px;letter-spacing:-.03em}
+.s-hero h1 em{font-style:italic;color:#F7BA21}
+.s-hero h1 .thin{font-weight:300;color:#94a3b8}
+.s-hero .sub{font-size:18px;color:#94a3b8;line-height:1.7;margin-bottom:40px;font-weight:300;max-width:660px}
+.s-hero .sub strong{color:#f1f5f9;font-weight:500}
+.s-hero .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.s-hero .stat{border-left:2px solid rgba(255,255,255,.06);padding:0 24px}
+.s-hero .stat:first-child{border-left:none;padding-left:0}
+.s-hero .stat .num{font-size:32px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.s-hero .stat .lbl{font-size:12px;color:#64748b;margin-top:2px;line-height:1.3}
+.s-hero .bl{color:#4d8ae8}
+.s-hero .pu{color:#7B4EAF}
+.s-hero .pp{color:#F7BA21}
+.s-hero .rd{color:#D2333F}
+@media(max-width:600px){.s-hero h1{font-size:34px}
+.s-hero .sub{font-size:16px}
+.s-hero .stats{grid-template-columns:repeat(2,1fr)!important;gap:16px!important}
+.s-hero .stat{padding:0 16px!important}
+.s-hero .stat .num{font-size:24px}}
+.s-met *{box-sizing:border-box;margin:0;padding:0}
+.s-met{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.s-met .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:1100px;margin:0 auto}
+.s-met .m{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:15px 18px}
+.s-met .m .lb{font-size:12px;color:#94a3b8;margin-bottom:4px}
+.s-met .m .vl{font-size:22px;font-weight:700;margin-bottom:2px}
+.s-met .m .sub{font-size:11px;color:#64748b;margin-bottom:6px}
+.s-met .track{height:5px;background:#0a0e1a;border-radius:3px;overflow:hidden}
+.s-met .fill{height:100%;border-radius:3px}
+.s-met .m .dt{font-size:10px;margin-top:6px;font-weight:600}
+.s-met .dr{color:#D2333F}
+.s-met .dg{color:#34d399}
+.s-met .dn{color:#64748b}
+.s-met .bl{color:#4d8ae8}
+.s-met .pu{color:#7B4EAF}
+.s-met .pp{color:#F7BA21}
+.s-met .rd{color:#D2333F}
+.s-met .sep{grid-column:1/-1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),transparent);margin:2px 0}
+.s-met .cat{grid-column:1/-1;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;padding:4px 0 0}
+@media(max-width:900px){.s-met .grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.s-met .grid{grid-template-columns:1fr 1fr}}
+.s-allr *{box-sizing:border-box;margin:0;padding:0}
+.s-allr, .s-allr{height:100%}
+.s-allr{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:14px 28px;overflow:hidden;display:flex;flex-direction:column}
+.s-allr .grid{flex:1 1 auto;min-height:0;width:100%;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:20px;max-width:1100px;margin:0 auto}
+.s-allr .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px 24px;display:flex;flex-direction:column;min-height:0}
+.s-allr h3{font-size:14px;font-weight:600;margin-bottom:2px}
+.s-allr .cs{font-size:11px;color:#64748b;margin-bottom:10px}
+.s-allr .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#64748b}
+.s-allr .lg span{display:flex;align-items:center;gap:4px}
+.s-allr .lg .d{width:8px;height:8px;border-radius:2px}
+.s-allr .cw{position:relative;width:100%;flex:1 1 auto;min-height:0}
+@media(max-width:700px){.s-allr .grid{grid-template-columns:1fr}
+.s-allr{padding:12px 16px}}
+.s-sen *{box-sizing:border-box;margin:0;padding:0}
+.s-sen, .s-sen{height:100%}
+.s-sen{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:14px 28px;overflow:hidden;display:flex;flex-direction:column}
+.s-sen .grid{flex:1 1 auto;min-height:0;width:100%;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:20px;max-width:1100px;margin:0 auto}
+.s-sen .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px 24px;display:flex;flex-direction:column;min-height:0}
+.s-sen h3{font-size:14px;font-weight:600;margin-bottom:2px}
+.s-sen .cs{font-size:11px;color:#64748b;margin-bottom:10px}
+.s-sen .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#64748b}
+.s-sen .lg span{display:flex;align-items:center;gap:4px}
+.s-sen .lg .d{width:8px;height:8px;border-radius:2px}
+.s-sen .cw{position:relative;width:100%;flex:1 1 auto;min-height:0}
+@media(max-width:700px){.s-sen .grid{grid-template-columns:1fr}
+.s-sen{padding:12px 16px}}
+.s-low *{box-sizing:border-box;margin:0;padding:0}
+.s-low, .s-low{height:100%}
+.s-low{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:14px 28px;overflow:hidden;display:flex;flex-direction:column}
+.s-low .grid{flex:1 1 auto;min-height:0;width:100%;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:20px;max-width:1100px;margin:0 auto}
+.s-low .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px 24px;display:flex;flex-direction:column;min-height:0}
+.s-low h3{font-size:14px;font-weight:600;margin-bottom:2px}
+.s-low .cs{font-size:11px;color:#64748b;margin-bottom:10px}
+.s-low .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#64748b}
+.s-low .lg span{display:flex;align-items:center;gap:4px}
+.s-low .lg .d{width:8px;height:8px;border-radius:2px}
+.s-low .cw{position:relative;width:100%;flex:1 1 auto;min-height:0}
+@media(max-width:700px){.s-low .grid{grid-template-columns:1fr}
+.s-low{padding:12px 16px}}
+.s-bars *{box-sizing:border-box;margin:0;padding:0}
+.s-bars, .s-bars{height:100%}
+.s-bars{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:14px 28px;overflow:hidden;display:flex;flex-direction:column}
+.s-bars .grid{flex:1 1 auto;min-height:0;width:100%;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:20px;max-width:1100px;margin:0 auto}
+.s-bars .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px 24px;display:flex;flex-direction:column;min-height:0}
+.s-bars .full{grid-column:1/-1}
+.s-bars h3{font-size:14px;font-weight:600;margin-bottom:2px}
+.s-bars .cs{font-size:11px;color:#64748b;margin-bottom:10px}
+.s-bars .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#64748b}
+.s-bars .lg span{display:flex;align-items:center;gap:4px}
+.s-bars .lg .d{width:8px;height:8px;border-radius:2px}
+.s-bars .cw{position:relative;width:100%;flex:1 1 auto;min-height:0}
+@media(max-width:700px){.s-bars .grid{grid-template-columns:1fr}
+.s-bars{padding:12px 16px}}
+.s-dc *{box-sizing:border-box;margin:0;padding:0}
+.s-dc{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
+.s-dc .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:1100px;margin:0 auto}
+.s-dc .dc{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px 18px;transition:border-color .3s}
+.s-dc .dc:hover{border-color:rgba(255,255,255,.12)}
+.s-dc .dc-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.04);padding-bottom:8px}
+.s-dc .dc-name{font-family:'Instrument Serif',serif;font-size:22px;font-weight:400}
+.s-dc .dc-flag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:4px}
+.s-dc .above{background:rgba(210,51,63,.15);color:#D2333F}
+.s-dc .below{background:rgba(52,211,153,.1);color:#34d399}
+.s-dc .dc-rows{display:flex;flex-direction:column;gap:8px}
+.s-dc .dc-row{display:flex;align-items:center;gap:10px}
+.s-dc .dc-stat{flex:0 0 auto;min-width:64px}
+.s-dc .dc-stat .val{font-size:16px;font-weight:700;line-height:1.2}
+.s-dc .dc-stat .lbl{font-size:9px;color:#64748b;line-height:1.2}
+.s-dc .dc-spark{flex:1;height:28px;position:relative}
+.s-dc .dc-spark canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important}
+.s-dc .dc-delta{flex:0 0 auto;font-size:9px;font-weight:600;text-align:right;min-width:50px}
+.s-dc .up{color:#D2333F}
+.s-dc .dn{color:#34d399}
+.s-dc .nt{color:#64748b}
+.s-dc .bl{color:#4d8ae8}
+.s-dc .pu{color:#7B4EAF}
+.s-dc .pp{color:#F7BA21}
+@media(max-width:560px){.s-dc .grid{gap:10px}
+.s-dc .dc{padding:14px 14px}
+.s-dc .dc-stat{min-width:56px}
+.s-dc .dc-delta{min-width:44px}}
+.s-narr *{box-sizing:border-box;margin:0;padding:0}
+.s-narr{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 24px;display:flex;align-items:center;min-height:100%}
+.s-narr, .s-narr{height:100%}
+.s-narr .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:40px 48px;max-width:920px;margin:0 auto;width:100%}
+.s-narr h2{font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;margin-bottom:20px;color:#f1f5f9;line-height:1.15}
+.s-narr h3{font-size:18px;font-weight:600;margin:30px 0 11px;color:#f1f5f9}
+.s-narr p{font-size:16.5px;color:#94a3b8;margin-bottom:15px;line-height:1.75;font-weight:300}
+.s-narr strong{color:#f1f5f9;font-weight:600}
+.s-narr .sc{display:inline;font-weight:600;color:#4d8ae8}
+.s-narr .hl{background:rgba(247,186,33,.06);border-left:3px solid #F7BA21;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:15px;color:#94a3b8;line-height:1.65}
+.s-narr .hl strong{color:#f1f5f9}
+@media(max-width:640px){.s-narr{padding:0 12px}
+.s-narr .card{padding:22px 20px}
+.s-narr h2{font-size:25px;margin-bottom:15px}
+.s-narr h3{font-size:16px;margin:22px 0 9px}
+.s-narr p{font-size:14.5px;line-height:1.62;margin-bottom:12px}
+.s-narr .hl{font-size:13.5px;padding:13px 15px;margin:15px 0}}
+</style>
 </head>
 <body>
-<header class="hero">
-  <div class="wrap">
-    <div class="tag" style="color:#4d8ae8"><span class="pulse"></span>Census · ACS 5-Year</div>
-    <h1 class="display">District Statistics</h1>
-    <p class="lead">Ten years of Census data on rent burden across Long Beach's nine council districts — who's cost burdened, where seniors are struggling, and where low-income renters are disappearing.</p>
+<div class="cx s-hero">
+<section class="hero"><div class="inner">
+  <div class="tag"><span class="dot"></span>ACS 5-Year · 2020-2024</div>
+  <h1><span class="thin">A decade of data.</span><br>Nine districts. <em>One crisis.</em></h1>
+  <p class="sub">10 years of Census data tracking rent burden across Long Beach's nine council districts — who's cost burdened, where seniors are struggling, and where <strong>low-income renters are disappearing</strong>.</p>
+  <div class="stats">
+    <div class="stat"><div class="num bl" id="s1">0</div><div class="lbl">Population</div></div>
+    <div class="stat"><div class="num rd" id="s2">0%</div><div class="lbl">Renter-occupied</div></div>
+    <div class="stat"><div class="num pp" id="s3">$0</div><div class="lbl">Median monthly rent</div></div>
+    <div class="stat"><div class="num rd" id="s4">$0</div><div class="lbl">Income needed to afford rent</div></div>
   </div>
-</header>
-<section class="block">
-  <div class="wrap">
-    <div class="card" style="max-width:680px">
-      <div class="tag-sm">Migrating to this site</div>
-      <h3 style="font-family:var(--serif);font-weight:400;font-size:24px">Interactive tools moving in</h3>
-      <p style="margin:10px 0 18px">This section's full interactive maps and charts are being rebuilt directly into the new site — no more embedded frames. In the meantime you can view the current live version.</p>
-      <a class="btn ghost" href="https://weare-libre.hub.arcgis.com/pages/stats" target="_blank" rel="noopener">View current version <span class="arr">→</span></a>
-    </div>
+  <div class="stats" style="margin-top:16px">
+    <div class="stat"><div class="num bl" id="s5">$0</div><div class="lbl">Median HH income — falls short</div></div>
+    <div class="stat"><div class="num rd" id="s6">0%</div><div class="lbl">Poverty rate</div></div>
+    <div class="stat"><div class="num pp" id="s7">0</div><div class="lbl">Affordable units per 100 ELI renters</div></div>
+    <div class="stat"><div class="num rd" id="s8">0</div><div class="lbl">Min-wage work/week for 1BR</div></div>
   </div>
-</section>
+  <div class="stats" style="margin-top:16px">
+    <div class="stat"><div class="num bl" id="s9">$0</div><div class="lbl">Median home value</div></div>
+    <div class="stat"><div class="num rd" id="s10">0%</div><div class="lbl">Rental vacancy rate</div></div>
+    <div class="stat"><div class="num pp" id="s11">0%</div><div class="lbl">Affordable housing built vs. need</div></div>
+    <div class="stat"><div class="num rd" id="s12">0</div><div class="lbl">Median year built</div></div>
+  </div>
+  <div style="margin-top:20px;padding-top:12px;border-top:1px solid rgba(255,255,255,.04)">
+    <p style="font-size:10px;color:#4a5568;line-height:1.7;margin:0">Sources: U.S. Census Bureau ACS 2020-2024 &amp; QuickFacts · NLIHC <em>Out of Reach</em> 2025 (CA) · NLIHC <em>The Gap</em> 2025 (LA-LB metro) · City of Long Beach RHNA · USC Lusk Center</p>
+  </div>
+</div></section>
+
+</div>
+<section class="cx cx-block"><p class="eyebrow" style="color:var(--blue)">Citywide Snapshot</p><h2>Long Beach housing at a glance.</h2><p style="color:var(--soft);font-weight:300;font-size:16px;margin-top:8px;max-width:64ch">Key indicators from the 2020–2024 ACS with 10-year trends.</p></section>
+<div class="cx s-met">
+<div class="grid">
+
+  <div class="cat bl">All Renters — B25070</div>
+
+  <div class="m"><div class="lb">Total renter households</div><div class="vl bl">99,965</div><div class="sub">Up from 87,263</div><div class="track"><div class="fill" style="width:100%;background:#276ADB"></div></div><div class="dt dn">+12,702 (+14.6%) over 10yr</div></div>
+
+  <div class="m"><div class="lb">Cost burdened (30%+)</div><div class="vl bl">53.1%</div><div class="sub">53,104 households</div><div class="track"><div class="fill" style="width:53.1%;background:#276ADB"></div></div><div class="dt dg">▼ -2.3pp from 55.4%</div></div>
+
+  <div class="m"><div class="lb">Severely burdened (50%+)</div><div class="vl bl">26.7%</div><div class="sub">26,687 households</div><div class="track"><div class="fill" style="width:26.7%;background:#276ADB"></div></div><div class="dt dg">▼ -3.2pp from 29.9%</div></div>
+
+  <div class="m"><div class="lb">Burdened HH count change</div><div class="vl rd">+4,745</div><div class="sub">48,359 → 53,104 burdened</div><div class="track"><div class="fill" style="width:100%;background:#D2333F"></div></div><div class="dt dr">▲ Rate down but MORE people affected</div></div>
+
+  <div class="sep"></div>
+  <div class="cat pu">65+ Senior Renters — B25072</div>
+
+  <div class="m"><div class="lb">Total 65+ renter HH</div><div class="vl pu">12,153</div><div class="sub">Up from 8,702</div><div class="track"><div class="fill" style="width:100%;background:#7B4EAF"></div></div><div class="dt dr">▲ +39.7% growth (+3,451 HH)</div></div>
+
+  <div class="m"><div class="lb">Senior burdened (30%+)</div><div class="vl pu">63.7%</div><div class="sub">7,736 households</div><div class="track"><div class="fill" style="width:63.7%;background:#7B4EAF"></div></div><div class="dt dr">▲ +0.4pp — stubbornly high</div></div>
+
+  <div class="m"><div class="lb">Senior severe (35%+)</div><div class="vl pu">54.9%</div><div class="sub">6,669 households</div><div class="track"><div class="fill" style="width:54.9%;background:#7B4EAF"></div></div><div class="dt dr">▲ +1.8pp from 53.1%</div></div>
+
+  <div class="m"><div class="lb">Burdened senior growth</div><div class="vl rd">+2,234</div><div class="sub">5,502 → 7,736 burdened</div><div class="track"><div class="fill" style="width:100%;background:#D2333F"></div></div><div class="dt dr">▲ +40.6% more burdened seniors</div></div>
+
+  <div class="sep"></div>
+  <div class="cat pp">Low-Income &lt;$35K — B25074</div>
+
+  <div class="m"><div class="lb">Total low-income renter HH</div><div class="vl pp">25,917</div><div class="sub">Down from 41,082</div><div class="track"><div class="fill" style="width:63%;background:#F7BA21"></div></div><div class="dt dr">▼ -15,165 HH displaced (-36.9%)</div></div>
+
+  <div class="m"><div class="lb">Low-income burdened (30%+)</div><div class="vl pp">81.1%</div><div class="sub">21,022 households</div><div class="track"><div class="fill" style="width:81.1%;background:#F7BA21"></div></div><div class="dt dg">▼ -4.4pp from 85.5%</div></div>
+
+  <div class="m"><div class="lb">Low-income severe (50%+)</div><div class="vl rd">70.8%</div><div class="sub">18,359 households</div><div class="track"><div class="fill" style="width:70.8%;background:#D2333F"></div></div><div class="dt dr">▲ +11.3pp from 59.5%</div></div>
+
+  <div class="m"><div class="lb">Share of all renters</div><div class="vl pp">25.9%</div><div class="sub">Down from 47.1%</div><div class="track"><div class="fill" style="width:25.9%;background:#F7BA21"></div></div><div class="dt dr">▼ -21.2pp — displacement signal</div></div>
+
+</div>
+</div>
+<section class="cx cx-block"><p class="eyebrow" style="color:var(--blue)">B25070 · All Renters</p><h2>Total rent-burden households.</h2><p style="color:var(--soft);font-weight:300;font-size:16px;margin-top:8px;max-width:64ch">The share of all renter households spending 30%+ of income on housing.</p></section>
+<div class="cx s-allr">
+<div class="grid">
+  <div class="card">
+    <h3>Cost burden rate — 10-year trend</h3><div class="cs">Share of renter HH spending 30%+ or 50%+ on housing</div>
+    <div class="lg"><span><span class="d" style="background:#276ADB"></span>Burdened (30%+)</span><span><span class="d" style="background:rgba(39,106,219,.35)"></span>Severe (50%+)</span></div>
+    <div class="cw"><canvas id="c1"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Household counts — who's affected</h3><div class="cs">Total and burdened renter households over time</div>
+    <div class="lg"><span><span class="d" style="background:#276ADB"></span>Total renter HH</span><span><span class="d" style="background:#D2333F"></span>Cost burdened (30%+)</span></div>
+    <div class="cw"><canvas id="c2"></canvas></div>
+  </div>
+</div>
+
+</div>
+<section class="cx cx-block"><p class="eyebrow" style="color:var(--purple)">B25072 · Seniors</p><h2>Rent-burdened households 65+.</h2><p style="color:var(--soft);font-weight:300;font-size:16px;margin-top:8px;max-width:64ch">Seniors on fixed incomes are among the most vulnerable to rising costs.</p></section>
+<div class="cx s-sen">
+<div class="grid">
+  <div class="card">
+    <h3>Senior 65+ burden rate — 10-year trend</h3><div class="cs">Severe for seniors = 35%+ (B25072 threshold)</div>
+    <div class="lg"><span><span class="d" style="background:#7B4EAF"></span>Burdened (30%+)</span><span><span class="d" style="background:rgba(123,78,175,.35)"></span>Severe (35%+)</span></div>
+    <div class="cw"><canvas id="c1"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Senior household counts — a growing population</h3><div class="cs">The 65+ renter population is expanding rapidly</div>
+    <div class="lg"><span><span class="d" style="background:#7B4EAF"></span>Total 65+ HH</span><span><span class="d" style="background:#D4537E"></span>Burdened (30%+)</span></div>
+    <div class="cw"><canvas id="c2"></canvas></div>
+  </div>
+</div>
+
+</div>
+<section class="cx cx-block"><p class="eyebrow" style="color:var(--amber)">B25074 · Low-Income</p><h2>Low-income households, severely burdened.</h2><p style="color:var(--soft);font-weight:300;font-size:16px;margin-top:8px;max-width:64ch">Households under $35K face the most acute pressure. Declining counts signal displacement.</p></section>
+<div class="cx s-low">
+<div class="grid">
+  <div class="card">
+    <h3>Low-income burden rate — 10-year trend</h3><div class="cs">Rising severe rate: those who remain face worse conditions</div>
+    <div class="lg"><span><span class="d" style="background:#F7BA21"></span>Burdened (30%+)</span><span><span class="d" style="background:#D2333F"></span>Severe (50%+)</span></div>
+    <div class="cw"><canvas id="c1"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Low-income household counts — the displacement signal</h3><div class="cs">Declining count = households leaving Long Beach</div>
+    <div class="lg"><span><span class="d" style="background:#F7BA21"></span>Total low-income HH</span><span><span class="d" style="background:#D2333F"></span>Severely burdened (50%+)</span></div>
+    <div class="cw"><canvas id="c2"></canvas></div>
+  </div>
+</div>
+
+</div>
+<section class="cx cx-block"><p class="eyebrow" style="color:var(--red)">By Council District</p><h2>Not all districts face the same burden.</h2><p style="color:var(--soft);font-weight:300;font-size:16px;margin-top:8px;max-width:64ch">Districts above the citywide average are highlighted in red.</p></section>
+<div class="cx s-bars">
+<div class="grid">
+  <div class="card"><h3>All renters — cost burden by district</h3><div class="cs">2020-2024 | Above citywide avg (53.1%) in red</div>
+    <div class="lg"><span><span class="d" style="background:#276ADB"></span>At/below avg</span><span><span class="d" style="background:#D2333F"></span>Above avg</span></div>
+    <div class="cw"><canvas id="b1"></canvas></div></div>
+  <div class="card"><h3>65+ seniors — burden by district</h3><div class="cs">2020-2024 | Above citywide avg (63.7%) in red</div>
+    <div class="lg"><span><span class="d" style="background:#7B4EAF"></span>At/below avg</span><span><span class="d" style="background:#D2333F"></span>Above avg</span></div>
+    <div class="cw"><canvas id="b2"></canvas></div></div>
+  <div class="card full"><h3>Low-income — severe burden by district</h3><div class="cs">2020-2024 | Above citywide avg (70.8%) in red</div>
+    <div class="lg"><span><span class="d" style="background:#F7BA21"></span>At/below avg</span><span><span class="d" style="background:#D2333F"></span>Above avg</span></div>
+    <div class="cw"><canvas id="b3"></canvas></div></div>
+</div>
+
+</div>
+<section class="cx cx-block"><p class="eyebrow" style="color:var(--blue)">District Breakdown</p><h2>Every district, side by side.</h2></section>
+<div class="cx s-dc">
+<div class="grid" id="cards"></div>
+
+
+</div>
+<section class="cx cx-block"><p class="eyebrow" style="color:var(--green)">Analysis</p><h2>What the data tells us.</h2></section>
+<div class="cx s-narr">
+<div class="card">
+  <h2>Exploring Housing Challenges in Long Beach: Unraveling the Rent Burden Puzzle</h2>
+
+  <p>In this exploration of our city's complex housing situation, our focus is on a significant issue that resonates with many residents: <strong>Rent Burden</strong>. Imagine spending a substantial chunk of your hard-earned income just to keep a roof over your head. That's the reality for a large number of households in Long Beach.</p>
+
+  <h3>What is rent burden?</h3>
+  <p>Rent burden occurs when a household spends <strong>30% or more</strong> of their income on housing costs. This is the threshold established by HUD. When families cross this line, they have less money for essentials like food, healthcare, transportation, and education. Those spending <strong>50% or more</strong> are considered <em>severely</em> cost burdened — one financial emergency away from potential homelessness.</p>
+
+  <h3>The citywide picture: a decade of data</h3>
+  <p>Using 10 years of American Community Survey data (from <span class="sc">2010-2014</span> through <span class="sc">2020-2024</span>), we can track how rent burden has evolved across Long Beach's nine council districts.</p>
+  <p>Citywide, <span class="sc">53.1%</span> of renter households are cost burdened — approximately <span class="sc">53,104</span> households. While this represents a modest improvement from <span class="sc">55.4%</span> a decade ago, the total <em>number</em> of burdened households has actually grown because Long Beach added more than <span class="sc">12,702</span> renter households over this period.</p>
+
+  <div class="hl"><strong>Key finding:</strong> The overall burden <em>rate</em> improved slightly, but the <em>number</em> of people affected grew. More renters are in Long Beach today, and more of them are cost burdened than a decade ago.</div>
+
+  <h3>The senior crisis: a growing population under pressure</h3>
+  <p>Perhaps the most concerning trend is among <strong style="color:#7B4EAF">senior renters aged 65 and over</strong>. The 65+ renter population grew by <span class="sc">39.7%</span> over the decade — from approximately <span class="sc">8,702</span> to <span class="sc">12,153</span> households. Their cost burden rate has held stubbornly high at <span class="sc">63.7%</span>, meaning the number of burdened seniors has surged by over <span class="sc">2,234</span>.</p>
+  <p>Seniors living on fixed incomes have few options when rents rise. They can't simply work more hours or switch careers. For many, the choice becomes paying rent or paying for medications, food, or other necessities.</p>
+
+  <h3>The displacement signal: low-income households disappearing</h3>
+  <p>The data on low-income renter households (those earning less than $35,000/year) tells a troubling story of displacement. Over the past decade, the number of low-income renter households <strong style="color:#D2333F">dropped by 15,165</strong> — from <span class="sc">41,082</span> to <span class="sc">25,917</span>.</p>
+  <p>These households didn't all get wealthier. While some crossed the $35,000 threshold due to wage growth and inflation, a significant portion were displaced from Long Beach entirely — pushed out by rising rents to more affordable areas further from their jobs, schools, and communities.</p>
+
+  <div class="hl"><strong>The displacement paradox:</strong> Among the low-income renters who remain, conditions are <em>worse</em>. The severe burden rate climbed from <span class="sc">59.5%</span> to <span class="sc">70.8%</span>. Fewer low-income households, but those still here are under greater financial strain than ever.</div>
+
+  <h3>What varies by district?</h3>
+  <p>Housing burden is not evenly distributed across Long Beach. <strong style="color:#D2333F">Districts 6, 1, and 2</strong> consistently show the highest burden rates, while <strong style="color:#34d399">Districts 3 and 4</strong> are lower. These patterns often correlate with historical patterns of disinvestment, housing stock age, and proximity to employment centers.</p>
+
+  <h3>Why this matters</h3>
+  <p>Housing is the foundation of community stability. When families spend too much on rent, neighborhoods lose their long-term residents, children change schools mid-year, and local businesses lose customers. The data on this page isn't just numbers — it represents real families making impossible choices between rent and groceries, between staying in their community and finding somewhere they can afford.</p>
+  <p>By tracking these indicators over time and across districts, LiBRE provides the evidence base that advocates, policymakers, and community members need to push for meaningful change: stronger renter protections, more affordable housing production, and targeted assistance for the most vulnerable — especially our seniors and lowest-income neighbors.</p>
+</div>
+</div>
 <script src="nav.js"></script>
+<script>
+(function(){var __r=window.document.querySelector('.s-hero');if(!__r)return;var document=new Proxy(window.document,{get:function(t,p){if(p==='getElementById')return function(id){return __r.querySelector('#'+(window.CSS&&CSS.escape?CSS.escape(id):id))};if(p==='querySelector')return function(s){return __r.querySelector(s)};if(p==='querySelectorAll')return function(s){return __r.querySelectorAll(s)};if(p==='getElementsByClassName')return function(s){return __r.getElementsByClassName(s)};if(p==='addEventListener')return function(e,f,o){if(e==='DOMContentLoaded'){f();}else{return t.addEventListener(e,f,o);}};var v=t[p];return typeof v==='function'?v.bind(t):v;}});
+
+function ac(el,t,pre,suf,d){var c=0,inc=t/60;var i=setInterval(function(){c+=inc;if(c>=t){c=t;clearInterval(i)}el.textContent=(pre||'')+Math.round(c).toLocaleString()+(suf||'')},d/60)}
+function ap(el,t,pre,dec,suf,d){var c=0,inc=t/60;var i=setInterval(function(){c+=inc;if(c>=t){c=t;clearInterval(i)}el.textContent=(pre||'')+c.toFixed(dec)+(suf||'')},d/60)}
+ac(document.getElementById('s1'),455548,'','',2000);
+ap(document.getElementById('s2'),58.8,'',1,'%',1500);
+ac(document.getElementById('s3'),2277,'$','',1800);
+ac(document.getElementById('s4'),91,'$','K',1500);
+ac(document.getElementById('s5'),87430,'$','',2000);
+ap(document.getElementById('s6'),14.8,'',1,'%',1500);
+ac(document.getElementById('s7'),17,'','',1200);
+ac(document.getElementById('s8'),98,'',' hrs',1500);
+ac(document.getElementById('s9'),834,'$','K',1800);
+document.getElementById('s10').textContent='<5%';
+ac(document.getElementById('s11'),3,'','%',1000);
+ac(document.getElementById('s12'),1959,'','',1500);
+
+})();
+</script>
+<script>
+(function(){var __r=window.document.querySelector('.s-allr');if(!__r)return;var document=new Proxy(window.document,{get:function(t,p){if(p==='getElementById')return function(id){return __r.querySelector('#'+(window.CSS&&CSS.escape?CSS.escape(id):id))};if(p==='querySelector')return function(s){return __r.querySelector(s)};if(p==='querySelectorAll')return function(s){return __r.querySelectorAll(s)};if(p==='getElementsByClassName')return function(s){return __r.getElementsByClassName(s)};if(p==='addEventListener')return function(e,f,o){if(e==='DOMContentLoaded'){f();}else{return t.addEventListener(e,f,o);}};var v=t[p];return typeof v==='function'?v.bind(t):v;}});
+
+Chart.defaults.color='#94a3b8';Chart.defaults.borderColor='rgba(255,255,255,0.06)';
+var L=["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"],gC='rgba(255,255,255,0.04)';
+var ln=function(l,d,c,f){var bg='transparent';if(f){if(c.indexOf('rgba')===0){bg=c.replace(/,[^,]+\)$/,',0.06)')}else{bg=c.replace(')',',0.06)').replace('rgb','rgba')}}return{label:l,data:d,borderColor:c,backgroundColor:bg,fill:!!f,tension:.3,pointRadius:2,borderWidth:2}};
+
+new Chart(document.getElementById('c1'),{type:'line',data:{labels:L,datasets:[
+  ln('Burdened (30%+)',[55.4,55.0,53.4,52.5,52.7,52.6,52.4,53.2,53.0,53.4,53.1],'rgb(39,106,219)',1),
+  ln('Severe (50%+)',[29.9,29.2,28.7,27.8,27.2,26.5,26.2,26.4,26.8,26.8,26.7],'rgba(39,106,219,0.35)',1)
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}}}},scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}},y:{min:20,max:60,ticks:{color:'#64748b',font:{size:10},callback:function(v){return v+'%'}},grid:{color:gC}}}}});
+
+new Chart(document.getElementById('c2'),{type:'line',data:{labels:L,datasets:[
+  ln('Total renter HH',[87263,87836,87832,88132,89064,89642,98870,100458,100410,100690,99965],'rgb(39,106,219)',1),
+  ln('Cost burdened',[48359,48281,46911,46271,46906,47148,51831,53470,53195,53802,53104],'rgb(210,51,63)',1)
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+Math.round(c.parsed.y).toLocaleString()}}}},scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#64748b',font:{size:10},callback:function(v){return(v/1000).toFixed(0)+'K'}},grid:{color:gC}}}}});
+
+})();
+</script>
+<script>
+(function(){var __r=window.document.querySelector('.s-sen');if(!__r)return;var document=new Proxy(window.document,{get:function(t,p){if(p==='getElementById')return function(id){return __r.querySelector('#'+(window.CSS&&CSS.escape?CSS.escape(id):id))};if(p==='querySelector')return function(s){return __r.querySelector(s)};if(p==='querySelectorAll')return function(s){return __r.querySelectorAll(s)};if(p==='getElementsByClassName')return function(s){return __r.getElementsByClassName(s)};if(p==='addEventListener')return function(e,f,o){if(e==='DOMContentLoaded'){f();}else{return t.addEventListener(e,f,o);}};var v=t[p];return typeof v==='function'?v.bind(t):v;}});
+
+Chart.defaults.color='#94a3b8';Chart.defaults.borderColor='rgba(255,255,255,0.06)';
+var L=["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"],gC='rgba(255,255,255,0.04)';
+var ln=function(l,d,c,f){var bg='transparent';if(f){if(c.indexOf('rgba')===0){bg=c.replace(/,[^,]+\)$/,',0.06)')}else{bg=c.replace(')',',0.06)').replace('rgb','rgba')}}return{label:l,data:d,borderColor:c,backgroundColor:bg,fill:!!f,tension:.3,pointRadius:2,borderWidth:2}};
+
+new Chart(document.getElementById('c1'),{type:'line',data:{labels:L,datasets:[
+  ln('Burdened (30%+)',[63.2,63.5,64.2,66.5,63.4,62.3,63.5,63.4,61.9,63.9,63.7],'rgb(123,78,175)',1),
+  ln('Severe (35%+)',[53.1,54.1,54.8,55.5,53.2,52.6,53.3,52.9,52.9,54.1,54.9],'rgba(123,78,175,0.35)',1)
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}}}},scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}},y:{min:40,max:75,ticks:{color:'#64748b',font:{size:10},callback:function(v){return v+'%'}},grid:{color:gC}}}}});
+
+new Chart(document.getElementById('c2'),{type:'line',data:{labels:L,datasets:[
+  ln('Total 65+ HH',[8702,9282,9211,9477,9783,9933,10718,11033,11728,11969,12153],'rgb(123,78,175)',1),
+  ln('Burdened (30%+)',[5502,5891,5913,6302,6205,6185,6807,6993,7257,7644,7736],'#D4537E',1)
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+Math.round(c.parsed.y).toLocaleString()}}}},scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#64748b',font:{size:10},callback:function(v){return(v/1000).toFixed(0)+'K'}},grid:{color:gC}}}}});
+
+})();
+</script>
+<script>
+(function(){var __r=window.document.querySelector('.s-low');if(!__r)return;var document=new Proxy(window.document,{get:function(t,p){if(p==='getElementById')return function(id){return __r.querySelector('#'+(window.CSS&&CSS.escape?CSS.escape(id):id))};if(p==='querySelector')return function(s){return __r.querySelector(s)};if(p==='querySelectorAll')return function(s){return __r.querySelectorAll(s)};if(p==='getElementsByClassName')return function(s){return __r.getElementsByClassName(s)};if(p==='addEventListener')return function(e,f,o){if(e==='DOMContentLoaded'){f();}else{return t.addEventListener(e,f,o);}};var v=t[p];return typeof v==='function'?v.bind(t):v;}});
+
+Chart.defaults.color='#94a3b8';Chart.defaults.borderColor='rgba(255,255,255,0.06)';
+var L=["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"],gC='rgba(255,255,255,0.04)';
+var ln=function(l,d,c,f){var bg='transparent';if(f){if(c.indexOf('rgba')===0){bg=c.replace(/,[^,]+\)$/,',0.06)')}else{bg=c.replace(')',',0.06)').replace('rgb','rgba')}}return{label:l,data:d,borderColor:c,backgroundColor:bg,fill:!!f,tension:.3,pointRadius:2,borderWidth:2}};
+
+new Chart(document.getElementById('c1'),{type:'line',data:{labels:L,datasets:[
+  ln('Burdened (30%+)',[85.5,85.4,85.7,86.1,84.8,84.7,85.7,85.0,82.7,81.5,81.1],'rgb(247,186,33)',1),
+  ln('Severe (50%+)',[59.5,58.8,59.9,60.9,61.4,62.1,64.6,67.5,68.5,70.1,70.8],'rgb(210,51,63)',1)
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}}}},scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}},y:{min:50,max:95,ticks:{color:'#64748b',font:{size:10},callback:function(v){return v+'%'}},grid:{color:gC}}}}});
+
+new Chart(document.getElementById('c2'),{type:'line',data:{labels:L,datasets:[
+  ln('Total low-income HH',[41082,40969,39319,36557,35185,33304,34792,32594,29775,27648,25917],'rgb(247,186,33)',1),
+  ln('Severely burdened',[24443,24070,23544,22259,21600,20681,22484,22003,20389,19385,18359],'rgb(210,51,63)',1)
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+Math.round(c.parsed.y).toLocaleString()}}}},scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#64748b',font:{size:10},callback:function(v){return(v/1000).toFixed(0)+'K'}},grid:{color:gC}}}}});
+
+})();
+</script>
+<script>
+(function(){var __r=window.document.querySelector('.s-bars');if(!__r)return;var document=new Proxy(window.document,{get:function(t,p){if(p==='getElementById')return function(id){return __r.querySelector('#'+(window.CSS&&CSS.escape?CSS.escape(id):id))};if(p==='querySelector')return function(s){return __r.querySelector(s)};if(p==='querySelectorAll')return function(s){return __r.querySelectorAll(s)};if(p==='getElementsByClassName')return function(s){return __r.getElementsByClassName(s)};if(p==='addEventListener')return function(e,f,o){if(e==='DOMContentLoaded'){f();}else{return t.addEventListener(e,f,o);}};var v=t[p];return typeof v==='function'?v.bind(t):v;}});
+
+Chart.defaults.color='#94a3b8';Chart.defaults.borderColor='rgba(255,255,255,0.06)';
+var dl=['D1','D2','D3','D4','D5','D6','D7','D8','D9'],gC='rgba(255,255,255,0.04)';
+function db(id,data,avg,clr){new Chart(document.getElementById(id),{type:'bar',data:{labels:dl,datasets:[{data:data,backgroundColor:data.map(function(v){return v>avg?'#D2333F':clr}),borderRadius:4,barPercentage:.65}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return'D'+(c.dataIndex+1)+': '+c.parsed.y.toFixed(1)+'%'}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:12}},grid:{display:false}},y:{ticks:{color:'#64748b',font:{size:10},callback:function(v){return v+'%'}},grid:{color:gC}}}}})}
+db('b1',[56.8,56.3,45.8,46.5,48.8,58.0,49.1,54.8,53.3],53.1,'#276ADB');
+db('b2',[67.8,74.3,59.2,60.1,61.3,67.8,52.7,60.8,59.4],63.7,'#7B4EAF');
+db('b3',[67.2,75.6,78.3,67.7,68.9,75.3,65.7,63.2,74.0],70.8,'#F7BA21');
+
+})();
+</script>
+<script>
+(function(){var __r=window.document.querySelector('.s-dc');if(!__r)return;var document=new Proxy(window.document,{get:function(t,p){if(p==='getElementById')return function(id){return __r.querySelector('#'+(window.CSS&&CSS.escape?CSS.escape(id):id))};if(p==='querySelector')return function(s){return __r.querySelector(s)};if(p==='querySelectorAll')return function(s){return __r.querySelectorAll(s)};if(p==='getElementsByClassName')return function(s){return __r.getElementsByClassName(s)};if(p==='addEventListener')return function(e,f,o){if(e==='DOMContentLoaded'){f();}else{return t.addEventListener(e,f,o);}};var v=t[p];return typeof v==='function'?v.bind(t):v;}});
+
+Chart.defaults.animation=false;
+var D=[
+{d:'District 1',rb:56.8,rbO:58.4,sr:2430,srP:67.8,srO:58.6,li:5617,liS:67.2,liO:55.7,
+ rbT:[58.4,60.6,58.4,55.3,54.8,55.8,54.9,56.5,57.5,58.2,56.8],
+ srT:[58.6,60.1,58.2,60.8,60.3,62.4,63.9,70.8,68.8,69.9,67.8],
+ liT:[55.7,57.2,57.0,56.8,58.3,59.9,62.4,66.2,68.1,66.8,67.2]},
+{d:'District 2',rb:56.3,rbO:56.2,sr:1445,srP:74.3,srO:79.1,li:4356,liS:75.6,liO:63.8,
+ rbT:[56.2,55.0,52.7,53.2,54.0,54.1,53.8,55.8,56.1,55.0,56.3],
+ srT:[79.1,80.1,81.2,80.8,79.2,76.0,74.0,71.5,72.9,72.2,74.2],
+ liT:[63.8,61.8,63.5,66.7,67.2,67.7,72.3,71.4,71.0,75.4,75.6]},
+{d:'District 3',rb:45.8,rbO:46.4,sr:1247,srP:59.2,srO:67.0,li:2218,liS:78.3,liO:67.8,
+ rbT:[46.4,44.7,42.5,41.4,43.0,42.8,42.3,43.3,44.8,43.9,45.8],
+ srT:[67.0,65.0,64.0,68.0,67.5,64.2,64.8,64.4,58.9,58.2,59.2],
+ liT:[67.8,68.0,68.7,67.1,69.4,71.3,71.5,75.5,76.0,79.3,78.3]},
+{d:'District 4',rb:46.5,rbO:47.1,sr:530,srP:60.1,srO:63.4,li:1271,liS:67.7,liO:71.5,
+ rbT:[47.1,45.5,43.0,41.9,43.3,41.6,42.9,45.1,43.9,45.0,46.5],
+ srT:[63.4,63.0,63.1,58.4,46.9,46.5,41.8,48.6,46.0,52.0,60.1],
+ liT:[71.5,63.8,62.8,57.6,57.9,57.2,63.0,64.6,71.6,67.8,67.7]},
+{d:'District 5',rb:48.8,rbO:48.0,sr:969,srP:61.3,srO:65.0,li:1171,liS:68.9,liO:55.3,
+ rbT:[48.0,44.9,46.7,46.8,47.1,46.4,48.7,50.1,47.5,48.9,48.8],
+ srT:[65.0,70.7,69.4,68.7,68.2,67.8,73.0,62.4,65.9,63.2,61.3],
+ liT:[55.3,61.8,61.8,62.8,65.1,59.1,64.8,75.6,64.4,64.2,68.9]},
+{d:'District 6',rb:58.0,rbO:62.3,sr:1881,srP:67.8,srO:58.4,li:3823,liS:75.3,liO:57.8,
+ rbT:[62.3,61.8,62.0,61.4,61.3,60.5,61.0,59.2,58.5,60.2,58.0],
+ srT:[58.4,56.5,58.8,64.4,59.4,61.5,62.7,66.2,63.0,69.3,67.8],
+ liT:[57.8,56.2,59.2,59.6,59.3,61.4,62.2,65.6,69.0,70.8,75.3]},
+{d:'District 7',rb:49.1,rbO:58.5,sr:1401,srP:52.7,srO:51.4,li:2371,liS:65.7,liO:50.6,
+ rbT:[58.5,55.6,52.3,54.0,49.8,46.4,47.7,48.0,49.5,51.2,49.1],
+ srT:[51.4,50.7,55.3,59.3,55.0,47.6,55.6,51.2,53.0,54.6,52.7],
+ liT:[50.6,46.4,47.7,54.2,55.0,52.8,56.7,59.1,63.1,64.6,65.7]},
+{d:'District 8',rb:54.8,rbO:57.1,sr:1145,srP:60.8,srO:58.6,li:2942,liS:63.2,liO:52.4,
+ rbT:[57.1,57.9,55.7,54.1,53.4,54.9,54.4,56.0,52.5,57.0,54.8],
+ srT:[58.6,57.3,58.2,62.8,55.9,53.7,59.5,60.9,54.7,61.7,60.8],
+ liT:[52.4,53.9,54.7,54.5,54.2,54.9,57.2,58.6,61.6,65.3,63.2]},
+{d:'District 9',rb:53.3,rbO:62.0,sr:1105,srP:59.4,srO:70.7,li:2148,liS:74.0,liO:66.5,
+ rbT:[62.0,62.4,63.0,62.0,62.1,62.5,61.6,59.8,57.3,54.6,53.3],
+ srT:[70.7,72.2,75.1,71.1,65.9,66.2,59.8,54.4,54.9,56.3,59.4],
+ liT:[66.5,64.8,67.4,72.8,68.2,69.0,67.8,73.0,70.0,72.9,74.0]}
+];
+
+var AVG=53.1;
+var ctr=document.getElementById('cards');
+
+D.forEach(function(dd,idx){
+  var above=dd.rb>AVG;
+  var rbDelta=dd.rb-dd.rbO;
+  var srDelta=dd.srP-dd.srO;
+  var liDelta=dd.liS-dd.liO;
+  var id='d'+(idx+1);
+
+  ctr.innerHTML+='<div class="dc">'+
+    '<div class="dc-top"><span class="dc-name">'+dd.d+'</span>'+
+    '<span class="dc-flag '+(above?'above':'below')+'">'+(above?'Above avg':'Below avg')+'</span></div>'+
+    '<div class="dc-rows">'+
+      '<div class="dc-row"><div class="dc-stat"><div class="val bl">'+dd.rb.toFixed(1)+'%</div><div class="lbl">Burden 30%+</div></div>'+
+      '<div class="dc-spark"><canvas id="'+id+'a"></canvas></div>'+
+      '<div class="dc-delta '+(rbDelta>0?'up':'dn')+'">'+(rbDelta>0?'▲':'▼')+Math.abs(rbDelta).toFixed(1)+'pp</div></div>'+
+
+      '<div class="dc-row"><div class="dc-stat"><div class="val pu">'+dd.srP.toFixed(1)+'%</div><div class="lbl">65+ burden</div></div>'+
+      '<div class="dc-spark"><canvas id="'+id+'b"></canvas></div>'+
+      '<div class="dc-delta '+(srDelta>0?'up':'dn')+'">'+(srDelta>0?'▲':'▼')+Math.abs(srDelta).toFixed(1)+'pp</div></div>'+
+
+      '<div class="dc-row"><div class="dc-stat"><div class="val pp">'+dd.liS.toFixed(1)+'%</div><div class="lbl">LI severe</div></div>'+
+      '<div class="dc-spark"><canvas id="'+id+'c"></canvas></div>'+
+      '<div class="dc-delta '+(liDelta>0?'up':'dn')+'">'+(liDelta>0?'▲':'▼')+Math.abs(liDelta).toFixed(1)+'pp</div></div>'+
+
+    '</div></div>';
+});
+
+function spark(id,data,color){
+  new Chart(document.getElementById(id),{type:'line',data:{labels:data.map(function(_,i){return i}),datasets:[{data:data,borderColor:color,backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false,min:Math.min.apply(null,data)-5,max:Math.max.apply(null,data)+5}}}});
+}
+
+D.forEach(function(dd,idx){
+  var id='d'+(idx+1);
+  spark(id+'a',dd.rbT,'#4d8ae8');
+  spark(id+'b',dd.srT,'#7B4EAF');
+  spark(id+'c',dd.liT,'#F7BA21');
+});
+
+})();
+</script>
 </body>
 </html>
