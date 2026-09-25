@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Long Beach Code Violations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="theme.css">
+<style>
+/* sit the app under the shared nav */
+body .wrap{padding-top:22px}
+</style>
+<style>
+:root{--bg:#0a0e1a;--panel:#141b2b;--panel2:#1c2437;--line:rgba(255,255,255,.08);
+  --ink:#eef2f9;--soft:#9aa6bd;--faint:#6b7891;
+  --blue:#4d8ae8;--amber:#F7BA21;--red:#e8636d;--purple:#a884e8;--green:#34d399}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Outfit',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto;padding:22px 20px 60px}
+a{color:var(--blue)}
+/* header */
+.head{display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:16px}
+.kick{font-size:11.5px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin:0 0 6px}
+h1{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(30px,4.5vw,46px);
+  line-height:1;letter-spacing:-.01em;margin:0}
+.sub{font-size:14.5px;color:var(--soft);font-weight:300;max-width:56ch;margin:8px 0 0}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 15px;min-width:96px}
+.stat .v{font-family:'Instrument Serif',serif;font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
+.stat .l{font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.stat .v.r{color:var(--red)}.stat .v.b{color:var(--blue)}
+/* controls */
+.controls{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  margin-bottom:16px;display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end}
+.cg{display:flex;flex-direction:column;gap:6px}
+.cg>label{font-size:10.5px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--faint)}
+.seg{display:flex;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:2px;flex-wrap:wrap;gap:2px}
+.seg button{font-family:inherit;font-size:12.5px;font-weight:500;color:var(--soft);background:none;border:none;
+  padding:6px 10px;border-radius:7px;cursor:pointer;transition:.12s}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--blue);color:#04101f;font-weight:600}
+.seg.dist button.on{background:var(--amber);color:#2a1d00}
+select{font-family:inherit;font-size:13px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);
+  border-radius:8px;padding:7px 10px;cursor:pointer}
+.chips{display:flex;gap:6px;flex-wrap:wrap;max-width:560px}
+.chip{font-family:inherit;font-size:12px;font-weight:500;color:var(--soft);background:var(--panel2);
+  border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer;transition:.12s;white-space:nowrap}
+.chip.on{color:var(--ink);border-color:var(--blue);background:rgba(77,138,232,.14)}
+.chip .d{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:5px;vertical-align:1px}
+.linkbtn{font-family:inherit;font-size:12px;color:var(--faint);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0}
+.linkbtn:hover{color:var(--ink)}
+/* main grid */
+.grid{display:grid;grid-template-columns:1fr 380px;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card h3{font-size:13px;font-weight:600;margin:0;padding:14px 16px 0;letter-spacing:-.01em}
+.card .cs{font-size:11.5px;color:var(--faint);padding:2px 16px 12px}
+#map{height:560px;width:100%;background:#0a0e1a}
+.leaflet-container{background:#0a0e1a;font-family:'Outfit',sans-serif}
+.readout{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--soft)}
+.readout b{color:var(--ink);font-variant-numeric:tabular-nums}
+.legend{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--faint)}
+.legbar{width:120px;height:8px;border-radius:4px;background:linear-gradient(90deg,#3b4b8a,#4d8ae8,#F7BA21,#e8636d)}
+/* right rail */
+.rail{display:flex;flex-direction:column;gap:16px}
+.lead h3 .badge{float:right;font-size:10px;font-weight:600;color:var(--red);background:rgba(232,99,109,.13);
+  padding:2px 8px;border-radius:999px;letter-spacing:.3px}
+.lb{max-height:412px;overflow-y:auto;padding:4px 8px 8px}
+.lb::-webkit-scrollbar{width:8px}.lb::-webkit-scrollbar-thumb{background:var(--panel2);border-radius:4px}
+.orow{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:8px 8px;border-radius:9px}
+.orow:hover{background:var(--panel2)}
+.orank{font-family:'Instrument Serif',serif;font-size:16px;color:var(--faint);text-align:center;font-variant-numeric:tabular-nums}
+.oname{font-size:13px;font-weight:500;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ometa{font-size:11px;color:var(--faint);margin-top:1px}
+.otype{display:inline-block;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:1px 5px;border-radius:4px;margin-right:5px}
+.t-LLC,.t-Corporation,.t-Limited{background:rgba(232,99,109,.14);color:var(--red)}
+.t-Public{background:rgba(168,132,232,.14);color:var(--purple)}
+.oval{text-align:right}
+.oval .n{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.oval .b{font-size:10.5px;color:var(--faint)}
+.chartbox{padding:0 14px 14px;height:190px;position:relative}
+.chartwrap{position:relative;height:100%}
+footer{margin-top:22px;color:var(--faint);font-size:12px;line-height:1.6;text-align:center}
+.loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;
+  font-family:'Instrument Serif',serif;font-size:22px;color:var(--soft);z-index:9999;transition:opacity .4s}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.rail{order:2}#map{height:440px}.stats{margin-left:0;width:100%}}
+/* embed mode (?embed): hide the internal title block — the Hub hero carries it — but keep the live stat band */
+html.embed .head>div:first-child{display:none}
+html.embed #statband{margin-left:0}
+html.embed .wrap{padding:14px 20px 40px}
+</style>
+<script>if(location.search.indexOf('embed')>-1)document.documentElement.classList.add('embed')</script>
+</head>
+<body>
+<div class="loading" id="loading">Loading 142,233 violations…</div>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <p class="kick">LiBRE · Long Beach</p>
+      <h1>Code Violations, 2008&ndash;2026</h1>
+      <p class="sub">Confirmed code violations across Long Beach, mapped as density and ranked by the owners behind them. The city logs every complaint &mdash; two-thirds found no violation, so those are off by default; flip <b>+ Complaints</b> to include them. Individual residents are never pinpointed; only concentration shows.</p>
+    </div>
+    <div class="stats" id="statband"></div>
+  </div>
+
+  <div class="controls">
+    <div class="cg"><label>Records</label><div class="seg" id="vSeg">
+      <button data-inc="0" class="on">Violations</button><button data-inc="1">+ Complaints</button></div></div>
+    <div class="cg"><label>Years</label><div style="display:flex;gap:6px;align-items:center">
+      <select id="yFrom"></select><span style="color:var(--faint)">to</span><select id="yTo"></select></div></div>
+    <div class="cg"><label>Owner</label><div class="seg" id="ogSeg">
+      <button data-og="all" class="on">All</button><button data-og="E">Entities</button>
+      <button data-og="I">Individuals</button><button data-og="P">Public</button></div></div>
+    <div class="cg"><label>District</label><div class="seg dist" id="dSeg">
+      <button data-d="all" class="on">All</button></div></div>
+    <div class="cg" style="flex:1;min-width:280px"><label>Violation type <button class="linkbtn" id="catAll">reset</button></label>
+      <div class="chips" id="catChips"></div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Where violations concentrate</h3>
+      <div class="cs">Density heatmap &mdash; ~110m grid, no exact addresses. Redder = more violations.</div>
+      <div id="map"></div>
+      <div class="readout">
+        <span><b id="shownN">0</b> <span id="shownNoun">violations</span> shown · <b id="shownP">100%</b> of all records</span>
+        <span class="legend">fewer <span class="legbar"></span> more</span>
+      </div>
+    </div>
+
+    <div class="rail">
+      <div class="card lead">
+        <h3>Owners on the hook <span class="badge" id="lbScope">all districts</span></h3>
+        <div class="cs" id="lbSub">Named entities ranked by total violations. Individuals stay anonymous.</div>
+        <div class="lb" id="leaderboard"></div>
+      </div>
+      <div class="card">
+        <h3>Who owns the violations</h3><div class="cs">Share by owner type (filtered)</div>
+        <div class="chartbox"><div class="chartwrap"><canvas id="ownChart"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:16px">
+    <div class="card">
+      <h3>Violations over time</h3><div class="cs">By year the case was logged (filtered)</div>
+      <div class="chartbox" style="height:220px"><div class="chartwrap"><canvas id="trendChart"></canvas></div></div>
+    </div>
+    <div class="card">
+      <h3>By violation type</h3><div class="cs">Click a bar to filter the map</div>
+      <div class="chartbox" style="height:220px"><div class="chartwrap"><canvas id="catChart"></canvas></div></div>
+    </div>
+  </div>
+
+  <footer>
+    Source: City of Long Beach code-enforcement records (Infor public portal), scraped &amp; anonymized by LiBRE, Aug 2026 ·
+    142,233 service requests, of which 48,418 are confirmed violations (the rest inspected with no violation found) ·
+    99.9% linked to a parcel &amp; owner · personal names removed, entity names retained.
+  </footer>
+</div>
+
+<script>
+const CATCOLORS={"No type recorded":"#64748b","Property Maintenance":"#4d8ae8","Other":"#8593ad","COVID":"#a884e8",
+  "Unpermitted Construction":"#F7BA21","Vehicles":"#f59e6b","Graffiti":"#e8636d","Inspection":"#34d399",
+  "Illegal Use":"#ec5f8f","Health/Pests":"#5ec6c0","Signage":"#c0a04d","Habitability":"#ff8f6b",
+  "Animals":"#7ba7e8","Nuisance":"#d0637f"};
+const OGCOLOR={E:"#e8636d",I:"#4d8ae8",P:"#a884e8"};
+const OGLABEL={E:"Entities (LLC/Corp/LP)",I:"Individuals & trusts",P:"Public / civic"};
+const state={yFrom:2008,yTo:2026,og:"all",dist:"all",incC:false,cats:new Set(Object.keys(CATCOLORS))};
+let HEAT=[], OWNERS=[], SUMMARY={}, map, heatLayer, ownChart, trendChart, catChart;
+const $=id=>document.getElementById(id);
+const fmt=n=>n.toLocaleString();
+
+function parseCSV(t){ // quote-aware
+  const rows=[],lines=t.trim().split(/\r?\n/);
+  for(let i=1;i<lines.length;i++){const l=lines[i];const out=[];let cur="",q=false;
+    for(let j=0;j<l.length;j++){const c=l[j];
+      if(q){if(c==='"'){if(l[j+1]==='"'){cur+='"';j++}else q=false}else cur+=c}
+      else{if(c===','){out.push(cur);cur=""}else if(c==='"')q=true;else cur+=c}}
+    out.push(cur);rows.push(out);}
+  return rows;
+}
+
+Promise.all([
+  fetch('data/code-enforcement/heat.csv').then(r=>r.text()),
+  fetch('data/code-enforcement/owners.csv').then(r=>r.text()),
+  fetch('data/code-enforcement/summary.json').then(r=>r.json()),
+  fetch('data/code-enforcement/lb_council_districts.geojson').then(r=>r.json()).catch(()=>null),
+]).then(([heatTxt,ownTxt,sum,districts])=>{
+  SUMMARY=sum;
+  // heat: lat,lon,year,cat,og,d,n
+  HEAT=heatTxt.trim().split(/\r?\n/).slice(1).map(l=>{const p=l.split(',');
+    return {lat:+p[0],lon:+p[1],y:+p[2],c:p[3],og:p[4],d:p[5],v:+p[6],n:+p[7]};});
+  // owners: owner,type,violations,complaints,buildings,vpb,top_cat,top_district,dv1..9,dt1..9
+  OWNERS=parseCSV(ownTxt).map(r=>({name:r[0],type:r[1],v:+r[2],c0:+r[3],b:+r[4],vpb:+r[5],cat:r[6],dist:r[7],
+    dv:[0,1,2,3,4,5,6,7,8].map(i=>+r[8+i]), dt:[0,1,2,3,4,5,6,7,8].map(i=>+r[17+i])}));
+  updateStatband(); buildControls(); initMap(districts); render();
+  const ld=$('loading'); ld.style.opacity=0; setTimeout(()=>ld.remove(),400);
+}).catch(e=>{$('loading').textContent='Could not load data: '+e.message;});
+
+function updateStatband(){
+  const s=SUMMARY;
+  const tiles = state.incC ? [
+    ['v', fmt(s.total), 'service requests'],
+    ['v b', fmt(s.violations), 'found a violation'],
+    ['v', Math.round(100*s.violations/s.total)+'%', 'violation rate'],
+    ['v', fmt(s.complaints), 'no violation found'],
+  ] : [
+    ['v', fmt(s.violations), 'confirmed violations'],
+    ['v b', fmt(s.viol_parcels), 'properties'],
+    ['v r', s.entity_share_viol+'%', 'entity-owned'],
+    ['v', fmt(s.entity_owners_viol), 'named entities'],
+  ];
+  $('statband').innerHTML=tiles.map(([c,v,l])=>`<div class="stat"><div class="${c}">${v}</div><div class="l">${l}</div></div>`).join('');
+}
+function buildControls(){
+  const yf=$('yFrom'),yt=$('yTo');
+  for(let y=2008;y<=2026;y++){yf.add(new Option(y,y));yt.add(new Option(y,y));}
+  yf.value=2008;yt.value=2026;
+  yf.onchange=()=>{state.yFrom=+yf.value;if(state.yFrom>state.yTo){yt.value=yf.value;state.yTo=+yf.value;}render();};
+  yt.onchange=()=>{state.yTo=+yt.value;if(state.yTo<state.yFrom){yf.value=yt.value;state.yFrom=+yt.value;}render();};
+  const ds=$('dSeg');for(let i=1;i<=9;i++){const b=document.createElement('button');b.dataset.d=i;b.textContent='D'+i;ds.appendChild(b);}
+  ds.onclick=e=>{if(e.target.dataset.d){[...ds.children].forEach(x=>x.classList.remove('on'));e.target.classList.add('on');
+    state.dist=e.target.dataset.d;render();zoomDistrict();}};
+  $('ogSeg').onclick=e=>{if(e.target.dataset.og){[...$('ogSeg').children].forEach(x=>x.classList.remove('on'));
+    e.target.classList.add('on');state.og=e.target.dataset.og;render();}};
+  $('vSeg').onclick=e=>{if(e.target.dataset.inc!==undefined){[...$('vSeg').children].forEach(x=>x.classList.remove('on'));
+    e.target.classList.add('on');state.incC=e.target.dataset.inc==='1';updateStatband();render();}};
+  const cc=$('catChips');
+  Object.keys(CATCOLORS).forEach(c=>{const b=document.createElement('button');b.className='chip on';b.dataset.c=c;
+    b.innerHTML=`<span class="d" style="background:${CATCOLORS[c]}"></span>${c}`;cc.appendChild(b);});
+  cc.onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const c=b.dataset.c;
+    if(state.cats.has(c))state.cats.delete(c);else state.cats.add(c);b.classList.toggle('on');render();};
+  $('catAll').onclick=()=>{state.cats=new Set(Object.keys(CATCOLORS));
+    [...cc.children].forEach(x=>x.classList.add('on'));render();};
+}
+function initMap(districts){
+  map=L.map('map',{zoomControl:true,attributionControl:false,preferCanvas:true,scrollWheelZoom:false}).setView([33.804,-118.16],11.5);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
+  if(districts){window._dLayer=L.geoJSON(districts,{style:{color:'#4d8ae8',weight:1.2,opacity:.4,fill:false}}).addTo(map);}
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,pane:'shadowPane'}).addTo(map);
+  heatLayer=L.heatLayer([],{radius:14,blur:22,maxZoom:16,minOpacity:.28,
+    gradient:{0:'#3b4b8a',.35:'#4d8ae8',.65:'#F7BA21',.85:'#f59e6b',1:'#e8636d'}}).addTo(map);
+}
+function zoomDistrict(){
+  if(!window._dLayer)return;
+  if(state.dist==='all'){map.flyTo([33.804,-118.16],11.5,{duration:.6});return;}
+  window._dLayer.eachLayer(l=>{const p=l.feature.properties;
+    if(String(p.COUNCIL_NUMBER)===state.dist)map.flyToBounds(l.getBounds(),{duration:.6,padding:[20,20]});});
+}
+function match(r){
+  return r.y>=state.yFrom&&r.y<=state.yTo && state.cats.has(r.c)
+    && (state.og==='all'||r.og===state.og) && (state.dist==='all'||r.d===state.dist)
+    && (state.incC || r.v===1);
+}
+function render(){
+  const pts=[]; let shown=0; const yr={},cat={},og={E:0,I:0,P:0}; const cells=new Set();
+  let max=0;
+  for(const r of HEAT){ if(!match(r))continue;
+    pts.push([r.lat,r.lon,r.n]); shown+=r.n; cells.add(r.lat+','+r.lon);
+    yr[r.y]=(yr[r.y]||0)+r.n; cat[r.c]=(cat[r.c]||0)+r.n; og[r.og]=(og[r.og]||0)+r.n;
+    if(r.n>max)max=r.n;
+  }
+  const scale=max>0?1/Math.max(6,max*0.55):1;
+  heatLayer.setLatLngs(pts.map(p=>[p[0],p[1],Math.min(1,p[2]*scale)]));
+  $('shownN').textContent=fmt(shown);
+  $('shownNoun').textContent=state.incC?'requests':'violations';
+  $('shownP').textContent=(SUMMARY.total?Math.round(100*shown/SUMMARY.total):100)+'%';
+  renderLeaderboard(); renderCharts(yr,cat,og);
+}
+function renderLeaderboard(){
+  const byDist=state.dist!=='all', inc=state.incC;
+  let list=OWNERS.filter(o=>state.og==='all'||ogGroup(o.type)===state.og);
+  list=list.map(o=>{
+    const cur = byDist ? (inc ? o.dt[+state.dist-1] : o.dv[+state.dist-1])
+                       : (inc ? (o.v+o.c0) : o.v);
+    return {...o, cur};
+  }).filter(o=>o.cur>0);
+  list.sort((a,b)=>b.cur-a.cur); list=list.slice(0,60);
+  $('lbScope').textContent=byDist?('district '+state.dist):'all districts';
+  $('lbSub').textContent=(inc?'Named entities ranked by all service requests':'Named entities ranked by confirmed violations')
+    +(byDist?` in District ${state.dist}.`:'. Individuals stay anonymous.');
+  const lab=byDist?('in D'+state.dist):(inc?'requests':'violations');
+  $('leaderboard').innerHTML=list.length?list.map((o,i)=>{
+    const tcls='t-'+o.type.split(/[ /]/)[0];
+    return `<div class="orow"><div class="orank">${i+1}</div>
+      <div><div class="oname" title="${o.name}">${o.name}</div>
+        <div class="ometa"><span class="otype ${tcls}">${shortType(o.type)}</span>${o.b} bldg${o.b>1?'s':''} · ${o.vpb} viol/bldg</div></div>
+      <div class="oval"><div class="n">${fmt(o.cur)}</div><div class="b">${lab}</div></div></div>`;
+  }).join(''):'<div style="padding:20px;color:var(--faint);font-size:13px;text-align:center">No named entities match these filters.</div>';
+}
+function ogGroup(t){return (t==='LLC'||t==='Corporation'||t==='Limited Partnership')?'E':(t==='Public/Civic'?'P':'I');}
+function shortType(t){return {'LLC':'LLC','Corporation':'Corp','Limited Partnership':'LP','Public/Civic':'Public'}[t]||t;}
+
+function renderCharts(yr,cat,og){
+  const years=[];for(let y=2008;y<=2026;y++)years.push(y);
+  const ydata=years.map(y=>yr[y]||0);
+  if(!trendChart){trendChart=new Chart($('trendChart'),{type:'line',
+    data:{labels:years,datasets:[{data:ydata,borderColor:'#4d8ae8',backgroundColor:'rgba(77,138,232,.12)',
+      fill:true,tension:.3,pointRadius:0,borderWidth:2}]},
+    options:baseOpts({y:true})});}
+  else{trendChart.data.datasets[0].data=ydata;trendChart.update('none');}
+
+  const cents=Object.entries(cat).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  if(!catChart){catChart=new Chart($('catChart'),{type:'bar',
+    data:{labels:cents.map(c=>c[0]),datasets:[{data:cents.map(c=>c[1]),
+      backgroundColor:cents.map(c=>CATCOLORS[c[0]]||'#64748b'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.x)}}},
+      scales:{x:{ticks:{color:'#6b7891',font:{family:'Outfit',size:10},callback:v=>v>=1000?(v/1000)+'k':v},grid:{color:'rgba(255,255,255,.04)'}},
+        y:{ticks:{color:'#9aa6bd',font:{family:'Outfit',size:10.5}},grid:{display:false}}},
+      onClick:(e,el)=>{if(el.length){
+        const c=catChart.data.labels[el[0].index];state.cats=new Set([c]);
+        [...$('catChips').children].forEach(x=>x.classList.toggle('on',x.dataset.c===c));render();}}}});}
+  else{catChart.data.labels=cents.map(c=>c[0]);catChart.data.datasets[0].data=cents.map(c=>c[1]);
+    catChart.data.datasets[0].backgroundColor=cents.map(c=>CATCOLORS[c[0]]||'#64748b');catChart.update('none');}
+
+  const ogv=[og.E,og.I,og.P];
+  if(!ownChart){ownChart=new Chart($('ownChart'),{type:'doughnut',
+    data:{labels:['Entities','Individuals & trusts','Public'],datasets:[{data:ogv,
+      backgroundColor:[OGCOLOR.E,OGCOLOR.I,OGCOLOR.P],borderColor:'#141b2b',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{position:'bottom',labels:{color:'#9aa6bd',font:{family:'Outfit',size:11},boxWidth:10,padding:10}},
+      tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.parsed)+' ('+Math.round(100*c.parsed/ogv.reduce((a,b)=>a+b,0))+'%)'}}}}});}
+  else{ownChart.data.datasets[0].data=ogv;ownChart.update('none');}
+}
+function baseOpts(g){return{responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.y??c.parsed.x??c.parsed)}}},
+  scales:{x:{ticks:{color:'#6b7891',font:{family:'Outfit',size:g.x?11:9},autoSkip:true,maxRotation:0},
+      grid:{display:!!g.x,color:'rgba(255,255,255,.04)'}},
+    y:{ticks:{color:'#6b7891',font:{family:'Outfit',size:10},callback:v=>v>=1000?(v/1000)+'k':v},
+      grid:{display:!!g.y,color:'rgba(255,255,255,.04)'}}}};}
+</script>
+<script src="nav.js"></script>
+</body>
+</html>

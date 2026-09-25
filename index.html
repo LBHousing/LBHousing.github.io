@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LiBRE — Long Beach Residents Empowered</title>
+<meta name="description" content="LiBRE maps the forces displacing Long Beach renters — ownership, code violations, evictions, and rent burden — using public data and GIS.">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="tag" style="color:var(--amber)"><span class="pulse"></span>Long Beach Residents Empowered</div>
+    <h1 class="display">Housing is a <em>human right.</em><br><span class="thin">We have the data to prove</span><br>where it's <em>under attack.</em></h1>
+    <p class="lead">LiBRE uses <strong>GIS technology and public data</strong> to map the forces displacing Long Beach renters — from corporate landlords and code violations to rent burden and eviction patterns. In a city that's <strong>60% renters</strong>, understanding who owns the housing is the first step to protecting the people who live in it.</p>
+    <div style="display:flex;gap:12px;margin-top:34px;flex-wrap:wrap">
+      <a class="btn" href="#explore">Explore the data <span class="arr">→</span></a>
+      <a class="btn ghost" href="#mission">Our mission</a>
+    </div>
+  </div>
+</header>
+
+<div class="marquee"><div class="track" id="mq"></div></div>
+
+<section class="block" style="border-top:none;padding-top:clamp(32px,5vw,56px)">
+  <div class="wrap">
+    <div class="stat-row">
+      <div class="cell"><div class="n bl num" id="s1">0</div><div class="l">Total dwelling units</div></div>
+      <div class="cell"><div class="n rd num" id="s2">0%</div><div class="l">Renters cost burdened</div></div>
+      <div class="cell"><div class="n pp num" id="s3">0</div><div class="l">Entity-owned units</div></div>
+      <div class="cell"><div class="n gn num" id="s4">0</div><div class="l">Senior renters (65+)</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="mission">
+  <div class="wrap" style="max-width:860px">
+    <p class="eyebrow">Our Mission</p>
+    <h2>Advancing housing justice through <em>data, organizing, and power.</em></h2>
+    <p class="lead" style="margin-top:20px">Long Beach Residents Empowered (LiBRE) is committed to advancing justice in disadvantaged communities through the <strong>creation and preservation of affordable housing</strong>, renter protections, and community economic development. Our work is driven by our values of <strong>shifting power dynamics</strong> so we can end displacement and homelessness and ensure housing as a human right for everyone who calls Long Beach home.</p>
+    <p class="lead" style="margin-top:16px">By utilizing <strong>Geographic Information System (GIS) technology</strong>, we convey the historical challenges that contribute today to the displacement of renters and their families. As you navigate these maps, it becomes clear how marginalized communities have been disproportionately impacted by evictions, rent increases, and unsafe living conditions.</p>
+  </div>
+</section>
+
+<section class="block" id="explore">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Explore the Data</p>
+      <h2>Six ways to see the housing crisis.</h2>
+      <p>Every map and dashboard is built from public records — the Census, the LA County Assessor, and the City of Long Beach — and now lives entirely here on our own site.</p>
+    </div>
+    <div class="grid g-3">
+
+      <a href="district-stats.html" class="card">
+        <div class="tag-sm">Census · ACS 5-Year</div>
+        <h3>District Statistics</h3>
+        <p>Rent burden across the nine council districts — 10 years of Census data on who's cost burdened, where seniors struggle, and where low-income renters are disappearing.</p>
+        <div class="link">Explore district data <span class="arr">→</span></div>
+      </a>
+
+      <a href="ownership.html" class="card">
+        <div class="tag-sm">Assessor Parcel Data</div>
+        <h3>Who Owns Long Beach?</h3>
+        <p>Every dwelling unit classified by owner type — LLCs, trusts, corporations, partnerships — and how ownership shifted from people to entities since 2018.</p>
+        <div class="link">See ownership data <span class="arr">→</span></div>
+      </a>
+
+      <a href="code-enforcement.html" class="card">
+        <div class="tag-sm">Code Enforcement · 2008–2026</div>
+        <h3>Code Violations</h3>
+        <p>142,233 code-enforcement requests mapped as density — 48,418 confirmed violations, ranked by the owners behind them. Individual residents never pinpointed.</p>
+        <div class="link">Open the map <span class="arr">→</span></div>
+      </a>
+
+      <a href="evictions.html" class="card">
+        <div class="tag-sm">Eviction Data · Heat Map</div>
+        <h3>Eviction Dashboard</h3>
+        <p>Where evictions concentrate in Long Beach, mapped by density with privacy protections. The heat gradient shows which neighborhoods face the most displacement pressure.</p>
+        <div class="link">See eviction patterns <span class="arr">→</span></div>
+      </a>
+
+      <a href="housing-maps.html" class="card">
+        <div class="tag-sm">History · Redlining · Demographics</div>
+        <h3>Housing Maps</h3>
+        <p>From the 1939 HOLC redlining map to today's violations and evictions — how disinvestment was drawn a century ago and why the patterns still hold.</p>
+        <div class="link">View housing maps <span class="arr">→</span></div>
+      </a>
+
+      <a href="team.html" class="card">
+        <div class="tag-sm">Our Organization</div>
+        <h3>The Team</h3>
+        <p>The people, partners, and coalitions behind LiBRE — organizers, researchers, and residents building tenant power in Long Beach.</p>
+        <div class="link">Meet the team <span class="arr">→</span></div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<script src="nav.js"></script>
+<script>
+// count-up stats
+function countTo(id,target,opts){opts=opts||{};var el=document.getElementById(id),c=0,inc=target/70;
+  var t=setInterval(function(){c+=inc;if(c>=target){c=target;clearInterval(t)}
+    el.textContent=(opts.pct?c.toFixed(1)+'%':Math.round(c).toLocaleString());},20);}
+var seen=false;
+function go(){if(seen)return;seen=true;
+  countTo('s1',186658);countTo('s2',53.1,{pct:1});countTo('s3',46513);countTo('s4',12153);}
+var band=document.getElementById('s1');
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(e){if(e[0].isIntersecting){go();io.disconnect();}},{threshold:.4});
+  io.observe(band);
+}else{go();}
+// marquee
+var items=['<b>186,658</b> dwelling units','<b>60%</b> renters','<b>53.1%</b> cost burdened',
+  '<b>24.9%</b> entity-owned','<b>48,418</b> code violations','<b>90 years</b> of redlining’s shadow',
+  '<b>12,153</b> senior renters','Housing is a <b>human right</b>'];
+var row=items.map(function(x){return '<span>'+x+'</span>';}).join(' · ');
+document.getElementById('mq').innerHTML=row+' · '+row;
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "total": 142233,
+  "violations": 48418,
+  "complaints": 93815,
+  "geocoded": 142160,
+  "viol_parcels": 23099,
+  "year_min": 2008,
+  "year_max": 2026,
+  "entity_share_viol": 29.5,
+  "entity_owners_viol": 4382,
+  "heat_rows": 81307
+}
