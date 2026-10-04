@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LiBRE Flare Widget</title>
+<!--
+  Embeddable "flare" widgets for the ArcGIS StoryMap (and anywhere else).
+  Pick a widget with ?w=  (or #) :
+    stats     - health-stakes count-up (60 / 52.4 / 25.3 / 63)
+    race      - racial makeup animated bars + displacement figures
+    owners    - most-cited corporate-landlord leaderboard
+    tiles     - code-violation big numbers (142,233 / 48,418 / 23,099)
+    evictions - eviction trend bar chart (moratorium dip -> surge)
+    reach     - Stay Housed LA outreach: big numbers + stacked-bar chart
+  Transparent background so it blends into a dark StoryMap theme; components
+  are self-contained cards. Animations fire on load (iframes load already in view).
+-->
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --ink:#f1f5f9; --soft:#9aa6bd; --faint:#6f7a91; --line:rgba(255,255,255,.1);
+  --panel:#131a29; --panel2:#0e1526; --amber:#F7BA21; --blue:#4d8ae8; --red:#e8636d; --green:#34d399; --purple:#a884e8;
+  --serif:'Instrument Serif',Georgia,serif; --sans:'Outfit',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent}
+body{font-family:var(--sans);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding:4px}
+#app{max-width:780px;margin:0 auto}
+.serif{font-family:var(--serif);font-weight:400}
+
+/* stat row */
+.statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.statrow .c{background:var(--panel2);padding:20px 14px}
+.statrow .v{font-family:var(--serif);font-size:clamp(26px,6vw,42px);color:var(--amber);line-height:1;font-variant-numeric:tabular-nums}
+.statrow .l{font-size:12px;color:var(--faint);margin-top:8px;line-height:1.35}
+@media(max-width:560px){.statrow{grid-template-columns:1fr 1fr}}
+
+/* race bars */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+.racebars{display:grid;gap:14px}
+.rb .rl{font-size:14px;color:var(--soft);margin-bottom:6px}
+.rb .rl b{color:var(--ink);font-family:var(--serif);font-size:18px;margin-left:5px}
+.rb .rt{height:14px;background:rgba(255,255,255,.05);border-radius:7px;overflow:hidden}
+.rb .rt i{display:block;height:100%;width:0;border-radius:7px;transition:width 1.1s cubic-bezier(.4,0,.2,1)}
+.racecap{font-size:12px;color:var(--faint);margin-top:14px;font-style:italic}
+.displace{margin-top:20px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px}
+.displace .dnum{text-align:center}
+.displace .dnum .num{display:block;font-family:var(--serif);font-size:clamp(28px,6vw,42px);color:var(--amber);line-height:1;font-variant-numeric:tabular-nums}
+.displace .dnum .yr{font-size:12px;color:var(--faint);letter-spacing:1px}
+.displace .darrow{font-family:var(--serif);font-size:20px;color:var(--soft);text-align:center}
+.displace .darrow b{color:var(--red);display:block;font-size:14px}
+.displace .dtext{flex:1;min-width:200px;font-size:13.5px;color:var(--soft);line-height:1.55}
+.displace .dtext b{color:var(--ink);font-weight:600}
+
+/* owner leaderboard */
+.lbh{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);display:flex;justify-content:space-between;margin-bottom:14px}
+.obar{margin-bottom:11px}
+.obar .ol{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--soft);margin-bottom:4px}
+.obar .ol b{color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.obar .ol .ov{font-variant-numeric:tabular-nums;color:var(--amber);flex:none}
+.obar .track{height:8px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden}
+.obar .fill{height:100%;background:linear-gradient(90deg,#4d8ae8,#e8636d);border-radius:5px;width:0;transition:width 1.1s cubic-bezier(.4,0,.2,1)}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tiles .t{background:var(--panel2);padding:22px 14px;text-align:center}
+.tiles .tv{font-family:var(--serif);font-size:clamp(24px,5vw,34px);color:var(--amber);font-variant-numeric:tabular-nums;line-height:1}
+.tiles .tl{font-size:12px;color:var(--faint);margin-top:8px}
+@media(max-width:440px){.tiles{grid-template-columns:1fr}}
+
+/* charts */
+.chartcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.chartcard h3{font-family:var(--serif);font-size:18px;font-weight:400;margin-bottom:3px}
+.chartcard .cs{font-size:12px;color:var(--faint);margin-bottom:14px}
+.chartbox{position:relative;height:300px}
+.rowtop{margin-bottom:16px}
+
+@media (prefers-reduced-motion:reduce){.rb .rt i,.obar .fill{transition:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var W = (new URLSearchParams(location.search).get('w') || location.hash.replace('#','') || 'stats').toLowerCase();
+var app = document.getElementById('app');
+var tick='#8793aa', gridc='rgba(255,255,255,.07)';
+
+function countUp(el){
+  var to=parseFloat(el.dataset.to), suf=el.dataset.suf||'', dec=(to%1!==0), t0=null;
+  function step(ts){if(!t0)t0=ts;var p=Math.min(1,(ts-t0)/1100),e=1-Math.pow(1-p,3),v=to*e;
+    el.textContent=(dec?v.toFixed(1):Math.round(v).toLocaleString())+suf;if(p<1)requestAnimationFrame(step);}
+  requestAnimationFrame(step);
+}
+function fire(){ // run animations shortly after load
+  document.querySelectorAll('.v[data-to]').forEach(countUp);
+  document.querySelectorAll('.rb .rt i,[data-w]').forEach(function(f){ if(f.dataset.w) f.style.width=f.dataset.w+'%'; });
+}
+
+function statrow(items){ // [[to,suf,label],...]
+  return '<div class="statrow">'+items.map(function(s){
+    return '<div class="c"><div class="v" data-to="'+s[0]+'" data-suf="'+(s[1]||'')+'">0</div><div class="l">'+s[2]+'</div></div>';
+  }).join('')+'</div>';
+}
+
+if(W==='stats'){
+  app.innerHTML = statrow([[60,'%','of residents rent'],[52.4,'%','of renters are rent-burdened'],
+    [25.3,'%','severely burdened'],[63,'%','rent burden, Black women renters']]);
+}
+else if(W==='race'){
+  var R=[['Latinx',43,'#F7BA21'],['White',42,'#4d8ae8'],['Asian',13,'#34d399'],['Black',12,'#e8636d']];
+  app.innerHTML='<div class="card"><div class="racebars">'+R.map(function(r){
+    return '<div class="rb"><div class="rl">'+r[0]+'<b>'+r[1]+'%</b></div><div class="rt"><i data-w="'+r[1]+'" style="background:'+r[2]+'"></i></div></div>';
+  }).join('')+'</div>'+
+  '<div class="racecap">Racial &amp; ethnic makeup of Long Beach &middot; U.S. Census (Latinx is an ethnicity, overlapping race)</div>'+
+  '<div class="displace"><div class="dnum"><span class="num" data-to="68618">0</span><span class="yr">2000</span></div>'+
+  '<div class="darrow">&rarr;<b>&minus;20%</b></div>'+
+  '<div class="dnum"><span class="num" data-to="54719">0</span><span class="yr">2020</span></div>'+
+  '<div class="dtext">Long Beach&rsquo;s <b>Black population</b> fell by nearly 14,000 in two decades &mdash; the signature of displacement. <b>Black women renters</b> now carry California&rsquo;s highest rent burden: <b>63%</b> (2023).</div></div></div>';
+  // the displace numbers use .num not .v — animate them too
+  document.querySelectorAll('.displace .num').forEach(function(n){n.classList.add('v');});
+}
+else if(W==='owners'){
+  var O=[['Avanath Seaport LP',66],['Penn Properties LLC',63],['WP LBMF LLC',56],['923 Long Beach LLC',52],['Dawn Patrol LLC',50],['Ocean Structure Inc',44]];
+  var max=O[0][1];
+  app.innerHTML='<div class="card"><div class="lbh"><span>Most-cited corporate landlords</span><span>violations</span></div>'+
+    O.map(function(o){return '<div class="obar"><div class="ol"><b>'+o[0]+'</b><span class="ov">'+o[1]+'</span></div>'+
+      '<div class="track"><div class="fill" data-w="'+Math.round(o[1]/max*100)+'"></div></div></div>';}).join('')+'</div>';
+}
+else if(W==='tiles'){
+  app.innerHTML='<div class="tiles">'+
+    '<div class="t"><div class="tv"><span class="v" data-to="142233">0</span></div><div class="tl">code cases since 2008</div></div>'+
+    '<div class="t"><div class="tv"><span class="v" data-to="48418">0</span></div><div class="tl">confirmed violations</div></div>'+
+    '<div class="t"><div class="tv"><span class="v" data-to="23099">0</span></div><div class="tl">parcels affected</div></div></div>';
+}
+else if(W==='evictions'){
+  app.innerHTML='<div class="chartcard"><h3>Eviction cases filed in Long Beach</h3>'+
+    '<div class="cs">By year &middot; LA County Superior Court. Blue = pandemic moratorium; red = post-moratorium surge.</div>'+
+    '<div class="chartbox"><canvas id="ev"></canvas></div></div>';
+  var yrs=[2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2018,2019,2020,2021,2022,2023,2024];
+  var vals=[2170,2066,2235,2244,2211,2232,2282,2219,2143,2094,1957,1684,1400,1397,381,493,969,1598,1509];
+  var cols=yrs.map(function(y){return (y===2020||y===2021)?'#4d8ae8':(y>=2022?'#e8636d':'rgba(154,166,189,.5)');});
+  new Chart(document.getElementById('ev'),{type:'bar',data:{labels:yrs,datasets:[{data:vals,backgroundColor:cols,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:function(c){return c.parsed.y.toLocaleString()+' cases';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:tick,font:{family:'Outfit',size:10},maxRotation:0,autoSkip:true,maxTicksLimit:7}},
+        y:{grid:{color:gridc},ticks:{color:tick,font:{family:'Outfit'},callback:function(v){return v.toLocaleString();}}}}}});
+}
+else if(W==='reach'){
+  app.innerHTML='<div class="rowtop">'+statrow([[56316,'','reached by text / phone'],[16511,'','reached in person'],
+      [7626,'','helped with a landlord issue'],[82,'','Know Your Rights events']])+'</div>'+
+    '<div class="chartcard"><h3>Tenants reached over time</h3>'+
+    '<div class="cs">Stay Housed LA, by period &middot; 80,453 people reached in all</div>'+
+    '<div class="chartbox"><canvas id="rc"></canvas></div></div>';
+  var labels=['2020–21','2022','2023–24','2024–25','2025–26'];
+  new Chart(document.getElementById('rc'),{type:'bar',data:{labels:labels,datasets:[
+    {label:'Direct outreach',data:[10000,15893,20000,7000,3423],backgroundColor:'#4d8ae8',stack:'s',borderRadius:3},
+    {label:'In-person',data:[0,3325,6358,3500,3328],backgroundColor:'#F7BA21',stack:'s',borderRadius:3},
+    {label:'1:1 navigation',data:[0,800,5080,475,1271],backgroundColor:'#e8636d',stack:'s',borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:tick,font:{family:'Outfit',size:12},boxWidth:12,boxHeight:12,padding:14}},
+        tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toLocaleString();}}}},
+      scales:{x:{stacked:true,grid:{display:false},ticks:{color:tick,font:{family:'Outfit'}}},
+        y:{stacked:true,grid:{color:gridc},ticks:{color:tick,font:{family:'Outfit'},callback:function(v){return v.toLocaleString();}}}}}});
+}
+else {
+  app.innerHTML='<div class="card" style="color:var(--soft)">Unknown widget "'+W+'". Use ?w=stats | race | owners | tiles | evictions | reach</div>';
+}
+
+// fire animations (iframe content is already in view once loaded)
+setTimeout(fire, 150);
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)fire();});},{threshold:.15});
+  io.observe(app);
+}
+</script>
+</body>
+</html>
