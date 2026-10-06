@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LiBRE Long Beach Map</title>
+<!--
+  Interactive Long Beach map widget for embedding into the ArcGIS StoryMap (or anywhere).
+  Reliable (same engine as story.html) — reads the geojson already live on GitHub Pages.
+  Layer buttons: 1939 redline / rent burden / severe burden / code violations / evictions.
+  ?l=redline|burden|severe|violations|evictions  sets the starting layer.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{--ink:#f1f5f9;--soft:#9aa6bd;--faint:#6f7a91;--line:rgba(255,255,255,.1);--amber:#F7BA21;--blue:#4d8ae8;
+  --serif:'Instrument Serif',Georgia,serif;--sans:'Outfit',system-ui,sans-serif;color-scheme:dark;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);background:#070a14;color:var(--ink);overflow:hidden}
+#wrap{position:relative;height:100%;width:100%}
+#map{position:absolute;inset:0;background:#070a14}
+.leaflet-container{background:#070a14;font-family:var(--sans)}
+.bar{position:absolute;top:0;left:0;right:0;z-index:600;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  padding:12px 14px;background:linear-gradient(180deg,rgba(7,10,20,.92),rgba(7,10,20,0));pointer-events:none}
+.bar .ttl{font-family:var(--serif);font-size:19px;color:#fff;margin-right:6px;pointer-events:none;text-shadow:0 1px 10px #000}
+.bar button{pointer-events:auto;font-family:var(--sans);font-size:12px;font-weight:500;color:var(--soft);
+  background:rgba(19,26,41,.9);border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;transition:.12s}
+.bar button:hover{color:#fff}
+.bar button.on{background:var(--amber);color:#1a1205;border-color:var(--amber);font-weight:600}
+.legend{position:absolute;left:14px;bottom:14px;z-index:600;background:rgba(7,10,20,.7);backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:11px;padding:11px 13px;max-width:min(80vw,320px);pointer-events:none}
+.legend .lt{font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:var(--soft);margin-bottom:8px}
+.legend .items{display:flex;flex-wrap:wrap;gap:7px 12px}
+.legend .it{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--soft)}
+.legend .sw{width:12px;height:12px;border-radius:3px;flex:none}
+.legend .dot{border-radius:50%}
+.legend .bar2{height:9px;width:150px;border-radius:5px}
+.legend .ends{display:flex;justify-content:space-between;width:150px;font-size:10.5px;color:var(--faint);margin-top:4px}
+.tm-pop{font-family:var(--sans);font-size:12.5px;color:#e2e8f0}
+.tm-pop b{color:#fff}
+.leaflet-popup-content-wrapper{background:#131a29;color:#e2e8f0;border-radius:10px}
+.leaflet-popup-tip{background:#131a29}
+.err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:14px;text-align:center;padding:30px}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="map"></div>
+  <div class="bar" id="bar"><span class="ttl" id="ttl">1939 redline</span></div>
+  <div class="legend" id="legend"></div>
+</div>
+<script>
+var BASE='../data/housing-maps/';
+var P=new URLSearchParams(location.search);
+var START=(P.get('l')||'redline').toLowerCase();
+
+var map=L.map('map',{zoomControl:true,attributionControl:false,scrollWheelZoom:false,minZoom:10,maxZoom:16}).setView([33.80,-118.15],12);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,pane:'shadowPane'}).addTo(map);
+
+var RAMP=['#3b4b8a','#4d8ae8','#7ba7e8','#F7BA21','#f59e6b','#e8636d'];
+function ramp(t){t=Math.max(0,Math.min(1,t));var i=Math.min(RAMP.length-2,Math.floor(t*(RAMP.length-1)));var f=t*(RAMP.length-1)-i;
+  function h(x){return[parseInt(x.slice(1,3),16),parseInt(x.slice(3,5),16),parseInt(x.slice(5,7),16)];}
+  var a=h(RAMP[i]),b=h(RAMP[i+1]);return'rgb('+Math.round(a[0]+(b[0]-a[0])*f)+','+Math.round(a[1]+(b[1]-a[1])*f)+','+Math.round(a[2]+(b[2]-a[2])*f)+')';}
+var GRADEC={A:'#5aa469',B:'#4d8ae8',C:'#e0b020',D:'#d24b57'};
+function circ(v,stops){for(var i=0;i<stops.length;i++){if(v<=stops[i][0])return stops[i];}return stops[stops.length-1];}
+var VIOLST=[[10,4,'#4d8ae8'],[40,6,'#7ba7e8'],[120,9,'#F7BA21'],[300,13,'#f59e6b'],[1e9,18,'#e8636d']];
+var EVICST=[[5,4,'#4d8ae8'],[15,7,'#F7BA21'],[40,10,'#f59e6b'],[100,14,'#e8636d'],[1e9,18,'#e8636d']];
+
+var DATA={}, layer=null, lbBounds=null;
+var LAYERS=[
+  ['redline','1939 redline'],['burden','Rent burden'],['severe','Severe burden'],
+  ['violations','Code violations'],['evictions','Evictions']
+];
+// build buttons
+var bar=document.getElementById('bar');
+LAYERS.forEach(function(L0){var b=document.createElement('button');b.textContent=L0[1];b.dataset.k=L0[0];
+  b.onclick=function(){show(L0[0]);};bar.appendChild(b);});
+
+function style_tract(f,key,dmin,dmax){var v=f.properties[key];
+  return {fillColor:(v==null?'#20283e':ramp((v-dmin)/(dmax-dmin))),fillOpacity:v==null?.15:.78,color:'#0a0e1a',weight:.5};}
+function draw(key){
+  if(layer){map.removeLayer(layer);layer=null;}
+  if(key==='redline'){
+    layer=L.geoJSON(DATA.holc,{style:function(f){return{fillColor:GRADEC[f.properties.grade]||'#888',fillOpacity:.72,color:'#060a14',weight:.6};},
+      onEachFeature:function(f,l){l.bindPopup('<div class="tm-pop"><b>Grade '+(f.properties.grade||'?')+'</b> &middot; '+(f.properties.category||'')+'</div>');}}).addTo(map);
+  } else if(key==='burden'||key==='severe'){
+    var fld=key==='burden'?'pct_burden':'pct_severe',dmin=key==='burden'?30:8,dmax=key==='burden'?70:38;
+    layer=L.geoJSON(DATA.tracts,{style:function(f){return style_tract(f,fld,dmin,dmax);},
+      onEachFeature:function(f,l){var v=f.properties[fld];l.bindPopup('<div class="tm-pop"><b>Tract '+String(f.properties.GEOID||'').slice(5)+'</b><br>'+(key==='burden'?'Rent burden':'Severe burden')+': '+(v==null?'—':v+'%')+'</div>');}}).addTo(map);
+  } else {
+    var src=key==='violations'?DATA.viol:DATA.evic, st=key==='violations'?VIOLST:EVICST;
+    layer=L.geoJSON(src,{pointToLayer:function(f,latlng){var c=f.properties.count||0,s=circ(c,st);
+      return L.circleMarker(latlng,{radius:s[1],fillColor:s[2],fillOpacity:.6,color:'#0a0e1a',weight:.5});},
+      onEachFeature:function(f,l){l.bindPopup('<div class="tm-pop"><b>'+(f.properties.count||0)+'</b> '+(key==='violations'?'violation cases':'eviction filings')+' in this ~400m cell</div>');}}).addTo(map);
+  }
+}
+var TTL={redline:'1939 redline',burden:'Rent burden by tract',severe:'Severe rent burden',violations:'Code-violation hotspots',evictions:'Eviction hotspots'};
+function legend(key){
+  var el=document.getElementById('legend');
+  if(key==='redline'){el.innerHTML='<div class="lt">1939 HOLC grade</div><div class="items">'+
+    '<div class="it"><span class="sw" style="background:#5aa469"></span>A</div><div class="it"><span class="sw" style="background:#4d8ae8"></span>B</div>'+
+    '<div class="it"><span class="sw" style="background:#e0b020"></span>C</div><div class="it"><span class="sw" style="background:#d24b57"></span>D "hazardous"</div></div>';return;}
+  if(key==='burden'||key==='severe'){el.innerHTML='<div class="lt">'+(key==='burden'?'% renters rent-burdened':'% paying 50%+ of income')+'</div>'+
+    '<div class="bar2" style="background:linear-gradient(90deg,#3b4b8a,#4d8ae8,#7ba7e8,#F7BA21,#f59e6b,#e8636d)"></div><div class="ends"><span>lower</span><span>higher</span></div>';return;}
+  el.innerHTML='<div class="lt">'+(key==='violations'?'cases per ~400m cell':'filings per ~400m cell')+'</div><div class="items">'+
+    '<div class="it"><span class="sw dot" style="width:7px;height:7px;background:#4d8ae8"></span>fewer</div>'+
+    '<div class="it"><span class="sw dot" style="width:12px;height:12px;background:#F7BA21"></span></div>'+
+    '<div class="it"><span class="sw dot" style="width:16px;height:16px;background:#e8636d"></span>more</div></div>';
+}
+function show(key){
+  if(!DATA.ready)return;
+  [].forEach.call(bar.querySelectorAll('button'),function(b){b.classList.toggle('on',b.dataset.k===key);});
+  document.getElementById('ttl').textContent=TTL[key]||key;
+  draw(key); legend(key);
+}
+
+function get(u){return fetch(u).then(function(r){if(!r.ok)throw 0;return r.json();});}
+Promise.all([
+  get(BASE+'holc_long_beach.geojson').then(function(g){DATA.holc=g;}).catch(function(){}),
+  get(BASE+'lb_tracts.geojson').then(function(g){DATA.tracts=g;}).catch(function(){}),
+  get(BASE+'violations_grid.geojson').then(function(g){DATA.viol=g;}).catch(function(){}),
+  get(BASE+'evictions_grid.geojson').then(function(g){DATA.evic=g;}).catch(function(){})
+]).then(function(){
+  DATA.ready=true;
+  // fit to Long Beach (tracts if present, else holc)
+  var fitLayer=DATA.tracts?L.geoJSON(DATA.tracts):(DATA.holc?L.geoJSON(DATA.holc):null);
+  if(fitLayer){lbBounds=fitLayer.getBounds();if(lbBounds.isValid())map.fitBounds(lbBounds,{padding:[12,12]});}
+  var start=LAYERS.some(function(l){return l[0]===START;})?START:'redline';
+  show(start);
+  setTimeout(function(){map.invalidateSize();if(lbBounds&&lbBounds.isValid())map.fitBounds(lbBounds,{padding:[12,12]});},200);
+}).catch(function(){document.getElementById('map').innerHTML='<div class="err">Map data could not load.</div>';});
+addEventListener('resize',function(){map.invalidateSize();});
+</script>
+</body>
+</html>
