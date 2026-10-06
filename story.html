@@ -36,7 +36,13 @@ img{max-width:100%}
 /* cover */
 .cover{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;
   padding:0 clamp(20px,6vw,80px) clamp(44px,9vh,96px);overflow:hidden;isolation:isolate}
-.cover .bgfx{position:absolute;inset:0;z-index:-2;background:radial-gradient(120% 90% at 80% 10%,#17213f,#0c1324 46%,#060912 100%)}
+.cover .cphoto{position:absolute;inset:0;z-index:-3;background:url(images/story/day-of-action.jpg) center/cover;opacity:.6;animation:ken 30s ease-in-out infinite alternate}
+@keyframes ken{from{transform:scale(1.03)}to{transform:scale(1.12)}}
+.cover .bgfx{position:absolute;inset:0;z-index:-2;background:linear-gradient(180deg,rgba(8,11,20,.5),rgba(10,14,26,.32) 38%,rgba(10,14,26,.93))}
+.photoband{max-width:1000px;margin:clamp(40px,8vh,80px) auto;padding:0 clamp(16px,5vw,40px)}
+.photoband img{width:100%;height:clamp(240px,44vh,480px);object-fit:cover;border-radius:16px;border:1px solid var(--line);display:block}
+.photoband figcaption{font-size:13px;color:var(--faint);margin-top:11px;font-style:italic;text-align:center}
+@media (prefers-reduced-motion:reduce){.cover .cphoto{animation:none}}
 .cover .glow{position:absolute;inset:0;z-index:-1;opacity:.55;
   background:radial-gradient(42% 55% at 84% 20%,rgba(247,186,33,.22),transparent 70%),radial-gradient(48% 52% at 8% 92%,rgba(77,138,232,.22),transparent 72%)}
 .cover .grid{position:absolute;inset:0;z-index:-1;opacity:.13;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
@@ -224,7 +230,7 @@ img{max-width:100%}
 
 <!-- 1 · COVER -->
 <header class="cover">
-  <div class="bgfx"></div><div class="glow"></div><div class="grid"></div>
+  <div class="cphoto"></div><div class="bgfx"></div><div class="glow"></div><div class="grid"></div>
   <p class="eyebrow">Long Beach Residents Empowered</p>
   <h1>Housing Is<br><em>Health</em></h1>
   <p class="sub">In a city where six in ten residents rent, where you live decides how you live — and the map was drawn a century ago.</p>
@@ -364,6 +370,7 @@ img{max-width:100%}
   <p>Long Beach Residents Empowered (LiBRE) is a grassroots, <strong>tenant-led</strong> nonprofit. For ten years it has advanced housing justice through renter protections, tenant organizing, and community economic development — guided by the people who live the crisis.</p>
   <p>Fear of landlord retaliation keeps many tenants carrying the burden alone. LiBRE's innovation is simple and hard to copy: when neighbors organize together — and learn their rights — they can act where no individual dared.</p>
 </section>
+<figure class="photoband reveal"><img src="images/story/community-meeting.jpg" alt="A bilingual, tenant-led LiBRE community meeting"><figcaption>A LiBRE community meeting — bilingual, tenant-led, run by the people who live the crisis.</figcaption></figure>
 
 <!-- 6 · TIMELINE -->
 <section class="band"><h2>Ten years of tenant power</h2><p>From a handful of organizing tenants to a citywide movement with banked policy victories.</p></section>
@@ -381,6 +388,7 @@ img{max-width:100%}
 
 <!-- 7 · THE PEOPLE -->
 <section class="band"><h2>The people</h2><p>Behind every data point is a neighbor who decided not to face it alone.</p></section>
+<figure class="photoband reveal"><img src="images/story/member-meeting.jpg" alt="A member welcomed at LiBRE's annual meeting"><figcaption>A member welcomed at LiBRE's annual member meeting.</figcaption></figure>
 <div class="quotes">
   <div class="story-card reveal">
     <h3>Fer — when the <em>carpet</em> was the illness</h3>
@@ -453,6 +461,7 @@ img{max-width:100%}
   <p>Tenant-led Neighborhood Councils, Leadership Academies, and a coalition structure can take root in any renter-majority city — LiBRE has already helped <strong>replicate AB 1482 enforcement</strong> elsewhere.</p>
   <p>And every map and dataset in this story — ownership, code violations, evictions, census burden, redlining, and vacant public land — was built from <strong>free public records</strong> and published openly. The innovation isn't just the organizing; it's giving tenants the same spatial intelligence that landlords and investors already have.</p>
 </section>
+<figure class="photoband reveal"><img src="images/story/may-day.jpg" alt="LiBRE members marching on May Day"><figcaption>A renter-majority city, organizing for change.</figcaption></figure>
 
 <!-- 11 · CTA -->
 <section class="cta">
