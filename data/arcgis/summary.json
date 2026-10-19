@@ -1,0 +1,136 @@
+{
+ "parcels": {
+  "total": 106459,
+  "owner_type": {
+   "Government": 1583,
+   "Individual": 57475,
+   "Trust (individual/family)": 37963,
+   "LLC": 6478,
+   "Nonprofit/Religious": 432,
+   "Corporation": 1603,
+   "Unknown": 169,
+   "HOA": 56,
+   "Limited Partnership": 700
+  },
+  "land_use": {
+   "INSTITUTIONAL/GOVERNMENT": 1587,
+   "RESIDENTIAL": 97533,
+   "COMMERCIAL": 4677,
+   "CHURCH/HEALTHCARE/SCHOOL": 495,
+   "INDUSTRIAL": 1525,
+   "(Open)": 184,
+   "VACANT": 58,
+   "RECREATION": 397,
+   "AGRICULTURE": 3
+  }
+ },
+ "tpa": {
+  "by_district": {
+   "4": {
+    "Single family Residential": 12413,
+    "Other": 1811,
+    "Low-density Multi-family Residential": 311,
+    "_exempt_new": 143,
+    "Two-family Residential": 292,
+    "Dense Multiple Residential": 1302
+   },
+   "7": {
+    "Other": 2062,
+    "Single family Residential": 7469,
+    "_exempt_new": 185,
+    "Low-density Multi-family Residential": 474,
+    "Two-family Residential": 702,
+    "Dense Multiple Residential": 72
+   },
+   "5": {
+    "Single family Residential": 15232,
+    "Other": 1070,
+    "_exempt_new": 193,
+    "Two-family Residential": 107,
+    "Low-density Multi-family Residential": 744,
+    "Dense Multiple Residential": 817
+   },
+   "9": {
+    "Single family Residential": 7063,
+    "Other": 1011,
+    "Low-density Multi-family Residential": 221,
+    "Two-family Residential": 812,
+    "_exempt_new": 80,
+    "Dense Multiple Residential": 106
+   },
+   "6": {
+    "Single family Residential": 1813,
+    "Other": 1826,
+    "Two-family Residential": 2346,
+    "_exempt_new": 90,
+    "Low-density Multi-family Residential": 495,
+    "Dense Multiple Residential": 527
+   },
+   "2": {
+    "Two-family Residential": 4254,
+    "Other": 2656,
+    "_exempt_new": 39,
+    "Low-density Multi-family Residential": 1547,
+    "Single family Residential": 937,
+    "Dense Multiple Residential": 1522
+   },
+   "3": {
+    "Other": 4732,
+    "Single family Residential": 5354,
+    "Two-family Residential": 3442,
+    "Dense Multiple Residential": 1304,
+    "_exempt_new": 125,
+    "Low-density Multi-family Residential": 1032
+   },
+   "8": {
+    "Low-density Multi-family Residential": 687,
+    "Other": 1229,
+    "Single family Residential": 6371,
+    "Two-family Residential": 315,
+    "_exempt_new": 204,
+    "Dense Multiple Residential": 432
+   },
+   "1": {
+    "Two-family Residential": 562,
+    "Other": 7263,
+    "_exempt_new": 105,
+    "Dense Multiple Residential": 1786,
+    "Low-density Multi-family Residential": 10
+   }
+  },
+  "exempt_cutoff_year": 2011,
+  "housing_types": [
+   "Single family Residential",
+   "Two-family Residential",
+   "Low-density Multi-family Residential",
+   "Dense Multiple Residential"
+  ]
+ },
+ "evictions": {
+  "total": 9850,
+  "status": {
+   "Cancelled": 2026,
+   "Served": 2743,
+   "Posted": 4833,
+   "No service": 47,
+   "Not found": 8,
+   "No attempt yet": 155,
+   "Investigating": 38
+  },
+  "code": {
+   "WP": 4602,
+   "NV": 5248
+  },
+  "by_district": {
+   "1": 2785,
+   "2": 1426,
+   "3": 702,
+   "4": 519,
+   "5": 381,
+   "6": 1433,
+   "7": 729,
+   "8": 1063,
+   "9": 812
+  }
+ }
+}
