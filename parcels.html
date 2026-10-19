@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parcel Explorer — LiBRE</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="maps.css">
+</head>
+<body>
+<main class="mp">
+  <div class="head">
+    <div>
+      <p class="kick">LiBRE · LB Parcel Data</p>
+      <h1>Parcel Explorer</h1>
+      <p class="sub">All 106,000+ Long Beach parcels by land use, owner type and age. Owners are shown by type only (individual, family trust, LLC, partnership, corporation, government and so on). No owner names are published.</p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="controls">
+    <div class="cg"><label>Council district</label><div class="seg amber" id="dSeg"></div></div>
+    <div class="cg"><label>Color by</label><div class="seg" id="cSeg">
+      <button data-v="lu" class="on">Land use</button><button data-v="ot">Owner type</button><button data-v="yr">Year built</button></div></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3 id="mapTitle">Parcels</h3><div class="cs">LA County Assessor parcels. Click a parcel for details.</div>
+      <div class="mapwrap"><div id="map" class="map"></div><div class="loading" id="loading">Loading parcels…</div></div>
+      <div class="readout"><span><b id="shown">0</b> parcels shown</span><span id="entNote"></span></div>
+    </div>
+    <div class="rail">
+      <div class="card"><h3>Legend</h3><div class="cs">&nbsp;</div><div class="legend" id="legend"></div></div>
+      <div class="card"><h3>Who owns Long Beach parcels</h3><div class="cs">Citywide, by owner type</div><div class="chartbox" style="height:260px"><canvas id="chart"></canvas></div></div>
+    </div>
+  </div>
+  <p class="note">Source: LBData (ArcGIS), LA County Assessor secured roll. Owner names and mailing addresses are not published; each parcel carries only an owner-type classification derived from the assessor record.</p>
+</main>
+<script src="nav.js"></script>
+<script src="maps-common.js"></script>
+<script>
+(function(){
+  var LU={'RESIDENTIAL':'#ed5151','COMMERCIAL':'#149ece','INSTITUTIONAL/GOVERNMENT':'#a7c636','INDUSTRIAL':'#9e559c','CHURCH/HEALTHCARE/SCHOOL':'#fc921f','RECREATION':'#ffde3e','VACANT':'#f789d8','AGRICULTURE':'#3caf99','(Open)':'#b7814a'};
+  var OT={'Individual':'#64748b','Trust (individual/family)':'#8a96ad','LLC':'#e8636d','Limited Partnership':'#D2333F','Corporation':'#F7BA21','Government':'#9d6fc7','Nonprofit/Religious':'#34d399','HOA':'#4d8ae8','Unknown':'#2a3247'};
+  var YR=[[1920,'#3b1d5c'],[1940,'#5c3a8a'],[1960,'#4d8ae8'],[1980,'#34d399'],[2000,'#F7BA21'],[3000,'#e8636d']];
+  var YL=['Before 1920','1920–1939','1940–1959','1960–1979','1980–1999','2000 or later'];
+  var mode='lu', layer=null, map=LB.baseMap('map'); LB.districts(map,{weight:1.2});
+  var dSeg=document.getElementById('dSeg');
+  for(var i=1;i<=9;i++) dSeg.insertAdjacentHTML('beforeend','<button data-v="'+i+'"'+(i==1?' class="on"':'')+'>'+i+'</button>');
+  function color(p){ if(mode==='lu') return LU[p.lu]||'#5b6478'; if(mode==='ot') return OT[p.ot]||'#2a3247';
+    if(!p.yr) return '#2a3247'; for(var i=0;i<YR.length;i++) if(p.yr<YR[i][0]) return YR[i][1]; return '#e8636d'; }
+  function style(f){var c=color(f.properties);return{color:c,fillColor:c,weight:.3,fillOpacity:.75,opacity:.9};}
+  function legend(){ var el=document.getElementById('legend');
+    if(mode==='lu') LB.legend(el,Object.keys(LU).map(function(k){return [LU[k],k.charAt(0)+k.slice(1).toLowerCase()];}));
+    else if(mode==='ot') LB.legend(el,Object.keys(OT).map(function(k){return [OT[k],k];}));
+    else LB.legend(el,YR.map(function(y,i){return [y[1],YL[i]];}).concat([['#2a3247','Unknown']])); }
+  function popup(p){ return '<b>'+LB.esc(p.addr||'No situs address')+'</b><br><span class="pk">Use:</span> '+LB.esc(p.use||p.lu)+
+      '<br><span class="pk">Year built:</span> '+(p.yr||'—')+(p.sqft?' · '+LB.fmt(p.sqft)+' sq ft':'')+
+      '<br><span class="pk">Zoning:</span> '+LB.esc(p.zone||'—')+
+      '<br><span class="pk">Owner type:</span> '+LB.esc(p.ot)+
+      '<br><span class="pk">AIN:</span> '+LB.esc(p.ain||'—'); }
+  function load(d){
+    document.getElementById('loading').style.display='flex';
+    LB.getJSON('data/arcgis/lb_parcels/d'+d+'.geojson').then(function(gj){
+      if(layer) map.removeLayer(layer);
+      layer=L.geoJSON(gj,{style:style,onEachFeature:function(f,l){l.on('click',function(e){L.popup().setLatLng(e.latlng).setContent(popup(f.properties)).openOn(map);});}}).addTo(map);
+      map.fitBounds(layer.getBounds(),{padding:[10,10]});
+      var ent=gj.features.filter(function(f){return /LLC|Partnership|Corporation/.test(f.properties.ot);}).length;
+      document.getElementById('shown').textContent=LB.fmt(gj.features.length);
+      document.getElementById('entNote').innerHTML='<b>'+LB.pct(ent/gj.features.length)+'</b> owned by LLCs, LPs or corporations';
+      document.getElementById('mapTitle').textContent='Council District '+d;
+      document.getElementById('loading').style.display='none';
+    }).catch(function(e){document.getElementById('loading').textContent='Could not load data';console.error(e);});
+  }
+  LB.seg(dSeg,function(v){load(v);});
+  LB.seg(document.getElementById('cSeg'),function(v){mode=v;if(layer)layer.setStyle(style);legend();});
+  legend(); load('1');
+  LB.getJSON('data/arcgis/summary.json').then(function(s){
+    var o=s.parcels.owner_type, keys=Object.keys(OT).filter(function(k){return o[k];}), ent=(o['LLC']||0)+(o['Limited Partnership']||0)+(o['Corporation']||0);
+    document.getElementById('stats').innerHTML=[[LB.fmt(s.parcels.total),'Parcels'],[LB.fmt(o['LLC']||0),'LLC-owned'],[LB.pct(ent/s.parcels.total),'Corporate-owned']]
+      .map(function(x){return '<div class="stat"><div class="v">'+x[0]+'</div><div class="l">'+x[1]+'</div></div>';}).join('');
+    new Chart(document.getElementById('chart'),{type:'doughnut',data:{labels:keys,datasets:[{data:keys.map(function(k){return o[k];}),backgroundColor:keys.map(function(k){return OT[k];}),borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}}}});
+  });
+})();
+</script>
+</body>
+</html>

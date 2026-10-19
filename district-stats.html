@@ -21,7 +21,7 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .s-hero .hero::after{content:'';position:absolute;bottom:-200px;left:-150px;width:600px;height:600px;background:radial-gradient(circle,rgba(123,78,175,.1) 0%,transparent 60%);pointer-events:none;animation:s-hero-drift 15s ease-in-out infinite alternate-reverse}
 @keyframes s-hero-drift{0%{transform:translate(0,0)}100%{transform:translate(40px,-30px)}}
 .s-hero .inner{position:relative;z-index:1;max-width:1100px;margin:0 auto}
-.s-hero .tag{display:inline-flex;align-items:center;gap:8px;background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:500;color:#4d8ae8;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px}
+.s-hero .tag{display:inline-flex;align-items:center;gap:8px;background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:500;color:#6ea0f0;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px}
 .s-hero .tag .dot{width:6px;height:6px;background:#4d8ae8;border-radius:50%;animation:s-hero-pulse 2s infinite}
 @keyframes s-hero-pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .s-hero h1{font-family:'Instrument Serif',serif;font-size:clamp(40px,7vw,72px);font-weight:400;line-height:1.05;margin-bottom:24px;letter-spacing:-.03em}
@@ -33,11 +33,11 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .s-hero .stat{border-left:2px solid rgba(255,255,255,.06);padding:0 24px}
 .s-hero .stat:first-child{border-left:none;padding-left:0}
 .s-hero .stat .num{font-size:32px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-.s-hero .stat .lbl{font-size:12px;color:#64748b;margin-top:2px;line-height:1.3}
-.s-hero .bl{color:#4d8ae8}
-.s-hero .pu{color:#7B4EAF}
+.s-hero .stat .lbl{font-size:12px;color:#8d9ab0;margin-top:2px;line-height:1.3}
+.s-hero .bl{color:#6ea0f0}
+.s-hero .pu{color:#b49cf0}
 .s-hero .pp{color:#F7BA21}
-.s-hero .rd{color:#D2333F}
+.s-hero .rd{color:#f07a83}
 @media(max-width:600px){.s-hero h1{font-size:34px}
 .s-hero .sub{font-size:16px}
 .s-hero .stats{grid-template-columns:repeat(2,1fr)!important;gap:16px!important}
@@ -49,17 +49,17 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .s-met .m{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:15px 18px}
 .s-met .m .lb{font-size:12px;color:#94a3b8;margin-bottom:4px}
 .s-met .m .vl{font-size:22px;font-weight:700;margin-bottom:2px}
-.s-met .m .sub{font-size:11px;color:#64748b;margin-bottom:6px}
+.s-met .m .sub{font-size:11px;color:#8d9ab0;margin-bottom:6px}
 .s-met .track{height:5px;background:#0a0e1a;border-radius:3px;overflow:hidden}
 .s-met .fill{height:100%;border-radius:3px}
 .s-met .m .dt{font-size:10px;margin-top:6px;font-weight:600}
-.s-met .dr{color:#D2333F}
+.s-met .dr{color:#f07a83}
 .s-met .dg{color:#34d399}
-.s-met .dn{color:#64748b}
-.s-met .bl{color:#4d8ae8}
-.s-met .pu{color:#7B4EAF}
+.s-met .dn{color:#8d9ab0}
+.s-met .bl{color:#6ea0f0}
+.s-met .pu{color:#b49cf0}
 .s-met .pp{color:#F7BA21}
-.s-met .rd{color:#D2333F}
+.s-met .rd{color:#f07a83}
 .s-met .sep{grid-column:1/-1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),transparent);margin:2px 0}
 .s-met .cat{grid-column:1/-1;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;padding:4px 0 0}
 @media(max-width:900px){.s-met .grid{grid-template-columns:repeat(2,1fr)}}
@@ -70,8 +70,8 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .s-allr .grid{flex:1 1 auto;min-height:0;width:100%;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:20px;max-width:1100px;margin:0 auto}
 .s-allr .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px 24px;display:flex;flex-direction:column;min-height:0}
 .s-allr h3{font-size:14px;font-weight:600;margin-bottom:2px}
-.s-allr .cs{font-size:11px;color:#64748b;margin-bottom:10px}
-.s-allr .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#64748b}
+.s-allr .cs{font-size:11px;color:#8d9ab0;margin-bottom:10px}
+.s-allr .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#8d9ab0}
 .s-allr .lg span{display:flex;align-items:center;gap:4px}
 .s-allr .lg .d{width:8px;height:8px;border-radius:2px}
 .s-allr .cw{position:relative;width:100%;flex:1 1 auto;min-height:0}
@@ -83,8 +83,8 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .s-sen .grid{flex:1 1 auto;min-height:0;width:100%;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:20px;max-width:1100px;margin:0 auto}
 .s-sen .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px 24px;display:flex;flex-direction:column;min-height:0}
 .s-sen h3{font-size:14px;font-weight:600;margin-bottom:2px}
-.s-sen .cs{font-size:11px;color:#64748b;margin-bottom:10px}
-.s-sen .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#64748b}
+.s-sen .cs{font-size:11px;color:#8d9ab0;margin-bottom:10px}
+.s-sen .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#8d9ab0}
 .s-sen .lg span{display:flex;align-items:center;gap:4px}
 .s-sen .lg .d{width:8px;height:8px;border-radius:2px}
 .s-sen .cw{position:relative;width:100%;flex:1 1 auto;min-height:0}
@@ -96,8 +96,8 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .s-low .grid{flex:1 1 auto;min-height:0;width:100%;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:20px;max-width:1100px;margin:0 auto}
 .s-low .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px 24px;display:flex;flex-direction:column;min-height:0}
 .s-low h3{font-size:14px;font-weight:600;margin-bottom:2px}
-.s-low .cs{font-size:11px;color:#64748b;margin-bottom:10px}
-.s-low .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#64748b}
+.s-low .cs{font-size:11px;color:#8d9ab0;margin-bottom:10px}
+.s-low .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#8d9ab0}
 .s-low .lg span{display:flex;align-items:center;gap:4px}
 .s-low .lg .d{width:8px;height:8px;border-radius:2px}
 .s-low .cw{position:relative;width:100%;flex:1 1 auto;min-height:0}
@@ -110,8 +110,8 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .s-bars .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px 24px;display:flex;flex-direction:column;min-height:0}
 .s-bars .full{grid-column:1/-1}
 .s-bars h3{font-size:14px;font-weight:600;margin-bottom:2px}
-.s-bars .cs{font-size:11px;color:#64748b;margin-bottom:10px}
-.s-bars .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#64748b}
+.s-bars .cs{font-size:11px;color:#8d9ab0;margin-bottom:10px}
+.s-bars .lg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:#8d9ab0}
 .s-bars .lg span{display:flex;align-items:center;gap:4px}
 .s-bars .lg .d{width:8px;height:8px;border-radius:2px}
 .s-bars .cw{position:relative;width:100%;flex:1 1 auto;min-height:0}
@@ -125,21 +125,21 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .s-dc .dc-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.04);padding-bottom:8px}
 .s-dc .dc-name{font-family:'Instrument Serif',serif;font-size:22px;font-weight:400}
 .s-dc .dc-flag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:4px}
-.s-dc .above{background:rgba(210,51,63,.15);color:#D2333F}
+.s-dc .above{background:rgba(210,51,63,.15);color:#f07a83}
 .s-dc .below{background:rgba(52,211,153,.1);color:#34d399}
 .s-dc .dc-rows{display:flex;flex-direction:column;gap:8px}
 .s-dc .dc-row{display:flex;align-items:center;gap:10px}
 .s-dc .dc-stat{flex:0 0 auto;min-width:64px}
 .s-dc .dc-stat .val{font-size:16px;font-weight:700;line-height:1.2}
-.s-dc .dc-stat .lbl{font-size:9px;color:#64748b;line-height:1.2}
+.s-dc .dc-stat .lbl{font-size:9px;color:#8d9ab0;line-height:1.2}
 .s-dc .dc-spark{flex:1;height:28px;position:relative}
 .s-dc .dc-spark canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important}
 .s-dc .dc-delta{flex:0 0 auto;font-size:9px;font-weight:600;text-align:right;min-width:50px}
-.s-dc .up{color:#D2333F}
+.s-dc .up{color:#f07a83}
 .s-dc .dn{color:#34d399}
-.s-dc .nt{color:#64748b}
-.s-dc .bl{color:#4d8ae8}
-.s-dc .pu{color:#7B4EAF}
+.s-dc .nt{color:#8d9ab0}
+.s-dc .bl{color:#6ea0f0}
+.s-dc .pu{color:#b49cf0}
 .s-dc .pp{color:#F7BA21}
 @media(max-width:560px){.s-dc .grid{gap:10px}
 .s-dc .dc{padding:14px 14px}
@@ -153,7 +153,7 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .s-narr h3{font-size:18px;font-weight:600;margin:30px 0 11px;color:#f1f5f9}
 .s-narr p{font-size:16.5px;color:#94a3b8;margin-bottom:15px;line-height:1.75;font-weight:300}
 .s-narr strong{color:#f1f5f9;font-weight:600}
-.s-narr .sc{display:inline;font-weight:600;color:#4d8ae8}
+.s-narr .sc{display:inline;font-weight:600;color:#6ea0f0}
 .s-narr .hl{background:rgba(247,186,33,.06);border-left:3px solid #F7BA21;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:15px;color:#94a3b8;line-height:1.65}
 .s-narr .hl strong{color:#f1f5f9}
 @media(max-width:640px){.s-narr{padding:0 12px}
@@ -318,17 +318,17 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
   <div class="hl"><strong>Key finding:</strong> The overall burden <em>rate</em> improved slightly, but the <em>number</em> of people affected grew. More renters are in Long Beach today, and more of them are cost burdened than a decade ago.</div>
 
   <h3>The senior crisis: a growing population under pressure</h3>
-  <p>Perhaps the most concerning trend is among <strong style="color:#7B4EAF">senior renters aged 65 and over</strong>. The 65+ renter population grew by <span class="sc">39.7%</span> over the decade — from approximately <span class="sc">8,702</span> to <span class="sc">12,153</span> households. Their cost burden rate has held stubbornly high at <span class="sc">63.7%</span>, meaning the number of burdened seniors has surged by over <span class="sc">2,234</span>.</p>
+  <p>Perhaps the most concerning trend is among <strong style="color:#b49cf0">senior renters aged 65 and over</strong>. The 65+ renter population grew by <span class="sc">39.7%</span> over the decade — from approximately <span class="sc">8,702</span> to <span class="sc">12,153</span> households. Their cost burden rate has held stubbornly high at <span class="sc">63.7%</span>, meaning the number of burdened seniors has surged by over <span class="sc">2,234</span>.</p>
   <p>Seniors living on fixed incomes have few options when rents rise. They can't simply work more hours or switch careers. For many, the choice becomes paying rent or paying for medications, food, or other necessities.</p>
 
   <h3>The displacement signal: low-income households disappearing</h3>
-  <p>The data on low-income renter households (those earning less than $35,000/year) tells a troubling story of displacement. Over the past decade, the number of low-income renter households <strong style="color:#D2333F">dropped by 15,165</strong> — from <span class="sc">41,082</span> to <span class="sc">25,917</span>.</p>
+  <p>The data on low-income renter households (those earning less than $35,000/year) tells a troubling story of displacement. Over the past decade, the number of low-income renter households <strong style="color:#f07a83">dropped by 15,165</strong> — from <span class="sc">41,082</span> to <span class="sc">25,917</span>.</p>
   <p>These households didn't all get wealthier. While some crossed the $35,000 threshold due to wage growth and inflation, a significant portion were displaced from Long Beach entirely — pushed out by rising rents to more affordable areas further from their jobs, schools, and communities.</p>
 
   <div class="hl"><strong>The displacement paradox:</strong> Among the low-income renters who remain, conditions are <em>worse</em>. The severe burden rate climbed from <span class="sc">59.5%</span> to <span class="sc">70.8%</span>. Fewer low-income households, but those still here are under greater financial strain than ever.</div>
 
   <h3>What varies by district?</h3>
-  <p>Housing burden is not evenly distributed across Long Beach. <strong style="color:#D2333F">Districts 6, 1, and 2</strong> consistently show the highest burden rates, while <strong style="color:#34d399">Districts 3 and 4</strong> are lower. These patterns often correlate with historical patterns of disinvestment, housing stock age, and proximity to employment centers.</p>
+  <p>Housing burden is not evenly distributed across Long Beach. <strong style="color:#f07a83">Districts 6, 1, and 2</strong> consistently show the highest burden rates, while <strong style="color:#34d399">Districts 3 and 4</strong> are lower. These patterns often correlate with historical patterns of disinvestment, housing stock age, and proximity to employment centers.</p>
 
   <h3>Why this matters</h3>
   <p>Housing is the foundation of community stability. When families spend too much on rent, neighborhoods lose their long-term residents, children change schools mid-year, and local businesses lose customers. The data on this page isn't just numbers — it represents real families making impossible choices between rent and groceries, between staying in their community and finding somewhere they can afford.</p>

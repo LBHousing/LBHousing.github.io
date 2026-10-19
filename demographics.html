@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Housing &amp; Demographics — LiBRE</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="maps.css">
+</head>
+<body>
+<main class="mp">
+  <div class="head">
+    <div>
+      <p class="kick">LiBRE · Demographics, UD &amp; Equity</p>
+      <h1>Who owns, who rents</h1>
+      <p class="sub">Owner- and renter-occupied homes by race and ethnicity across Long Beach census tracts, 1990–2019, plus 2020 Census population by block.</p>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="cg"><label>Dataset</label><div class="seg" id="dsSeg">
+      <button data-v="hist" class="on">1990–2010 Census</button><button data-v="acs">ACS 2010–2019</button><button data-v="cb">2020 blocks</button></div></div>
+    <div class="cg" id="tenG"><label>Tenure</label><div class="seg amber" id="tenSeg"><button data-v="OO" class="on">Owner-occupied</button><button data-v="RO">Renter-occupied</button></div></div>
+    <div class="cg"><label>Group</label><select id="group" aria-label="Group"></select></div>
+    <div class="cg" id="yearG"><label>Year</label><select id="year" aria-label="Year"></select></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3 id="title">Map</h3><div class="cs" id="unit">&nbsp;</div>
+      <div class="mapwrap"><div id="map" class="map"></div><div class="loading" id="loading">Loading…</div></div>
+      <div class="readout"><span id="readout">&nbsp;</span></div>
+    </div>
+    <div class="rail">
+      <div class="card"><h3>Legend</h3><div class="cs">Quintiles of the mapped value</div><div class="legend" id="legend"></div></div>
+      <div class="card"><h3 id="chartTitle">Citywide trend</h3><div class="cs" id="chartSub">&nbsp;</div><div class="chartbox" style="height:240px"><canvas id="chart"></canvas></div></div>
+    </div>
+  </div>
+  <p class="note">Sources: US Census 1990/2000/2010 tenure by race (tract), American Community Survey S2502 5-year estimates (tract), 2020 Decennial Census P.L. 94-171 (block), as compiled in LiBRE's ArcGIS layers. All data are aggregated counts or shares; no individual records.</p>
+</main>
+<script src="nav.js"></script>
+<script src="maps-common.js"></script>
+<script>
+(function(){
+  var G_HIST=[['A','All households'],['W','White'],['B','Black / African American'],['L','Hispanic / Latino'],['API','Asian / Pacific Islander'],['NA','Native American / Alaska Native'],['S','Some other race'],['2','Two or more races'],['NL','Not Hispanic / Latino']];
+  var G_ACS=[['W','White'],['B','Black / African American'],['L','Hispanic / Latino'],['A','Asian'],['PI','Pacific Islander'],['NA','Native American / Alaska Native'],['SM','Some other race'],['TW','Two or more races']];
+  var G_CB=[['TOTPOP','Total population'],['HOUSING20','Housing units'],['WTA','White alone'],['BKA','Black alone'],['Asian','Asian alone'],['Hawaiian_PacificIslands','Native Hawaiian / Pacific Islander'],['American','American Indian / Alaska Native'],['SMO','Some other race'],['TWO','Two or more races']];
+  var COLS=['#2b2f4a','#3d4f8f','#4d8ae8','#F7BA21','#e8636d'];
+  var S={ds:'hist',ten:'OO',group:'B',year:'2010'}, map=LB.baseMap('map'), layer=null, chart=null;
+  LB.districts(map,{weight:1.2,opacity:.55});
+  var URL={hist:'data/arcgis/owner_renter_by_race_1990_2010.geojson',acs:'data/arcgis/acs_tracts_2010_2019.geojson',cb:'data/arcgis/census_blocks_2020.geojson'};
+  function groups(){return S.ds==='hist'?G_HIST:S.ds==='acs'?G_ACS:G_CB;}
+  function field(){return S.ds==='cb'?S.group:S.ten+S.group;}
+  function setupControls(gj){
+    var g=groups(), sel=document.getElementById('group');
+    sel.innerHTML=g.map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>';}).join('');
+    if(!g.some(function(x){return x[0]===S.group;})) S.group=g[S.ds==='cb'?0:1][0];
+    sel.value=S.group;
+    document.getElementById('tenG').style.display=S.ds==='cb'?'none':'';
+    document.getElementById('yearG').style.display=S.ds==='cb'?'none':'';
+    if(S.ds!=='cb'){ var ys=Array.from(new Set(gj.features.map(function(f){return String(f.properties.year);}))).filter(function(y){return y&&y!=='null';}).sort();
+      var ysel=document.getElementById('year'); ysel.innerHTML=ys.map(function(y){return '<option>'+y+'</option>';}).join('');
+      if(ys.indexOf(S.year)<0) S.year=ys[ys.length-1]; ysel.value=S.year; }
+  }
+  function quint(vals){ var v=vals.filter(function(x){return x!=null&&!isNaN(x);}).sort(function(a,b){return a-b;}); if(!v.length) return [0,0,0,0];
+    return [.2,.4,.6,.8].map(function(q){return v[Math.floor(q*(v.length-1))];}); }
+  function draw(){
+    document.getElementById('loading').style.display='flex';
+    LB.getJSON(URL[S.ds]).then(function(gj){
+      setupControls(gj);
+      var f=field(), fs=S.ds==='cb'?gj.features:gj.features.filter(function(x){return String(x.properties.year)===S.year;});
+      var isPct=S.ds==='acs', val=function(p){var v=p[f];return v==null?null:+v;};
+      var br=quint(fs.map(function(x){return val(x.properties);})), col=LB.ramp(br,COLS);
+      if(layer) map.removeLayer(layer);
+      layer=L.geoJSON({type:'FeatureCollection',features:fs},{style:function(x){return{color:'rgba(255,255,255,.18)',weight:S.ds==='cb'?.2:.6,fillColor:col(val(x.properties)),fillOpacity:.78};},
+        onEachFeature:function(x,l){var p=x.properties;l.bindTooltip((S.ds==='cb'?'Block '+p.block:'Tract '+p.tract)+': <b>'+(isPct?LB.fmt(val(p),1)+'%':LB.fmt(val(p)))+'</b>',{sticky:true});}}).addTo(map);
+      var fmtb=function(v){return isPct?LB.fmt(v,1)+'%':LB.fmt(v);};
+      LB.legend(document.getElementById('legend'),COLS.map(function(c,i){return [c,i===0?'≤ '+fmtb(br[0]):i===4?'> '+fmtb(br[3]):fmtb(br[i-1])+' – '+fmtb(br[i])];}));
+      var gname=groups().find(function(x){return x[0]===S.group;})[1];
+      document.getElementById('title').textContent=S.ds==='cb'?gname+', 2020':(S.ten==='OO'?'Owner':'Renter')+'-occupied homes — '+gname+', '+S.year;
+      document.getElementById('unit').textContent=S.ds==='acs'?'Percent of '+(S.ten==='OO'?'owner':'renter')+'-occupied units, by tract':S.ds==='hist'?'Number of occupied housing units, by tract':'People (or housing units) per census block';
+      var tot=fs.reduce(function(a,x){var v=val(x.properties);return a+(v||0);},0);
+      document.getElementById('readout').innerHTML=isPct?'<b>'+fs.length+'</b> tracts mapped':'<b>'+LB.fmt(tot)+'</b> citywide across <b>'+LB.fmt(fs.length)+'</b> '+(S.ds==='cb'?'blocks':'tracts');
+      trend(gj); document.getElementById('loading').style.display='none';
+    });
+  }
+  function trend(gj){
+    if(chart) chart.destroy(); var c=document.getElementById('chart');
+    if(S.ds==='cb'){ var keys=G_CB.slice(2), sums=keys.map(function(k){return gj.features.reduce(function(a,x){return a+(x.properties[k[0]]||0);},0);});
+      document.getElementById('chartTitle').textContent='Population by race, 2020'; document.getElementById('chartSub').textContent='Long Beach blocks, total persons';
+      chart=new Chart(c,{type:'bar',data:{labels:keys.map(function(k){return k[1].replace(' alone','');}),datasets:[{data:sums,backgroundColor:'#4d8ae8'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}}); return; }
+    var ys=Array.from(new Set(gj.features.map(function(f){return String(f.properties.year);}))).filter(function(y){return y&&y!=='null';}).sort();
+    var agg=S.ds==='acs'?function(fs,k){var v=fs.map(function(x){return x.properties[k];}).filter(function(v){return v!=null;});return v.length?v.reduce(function(a,b){return a+b;},0)/v.length:null;}
+                       :function(fs,k){return fs.reduce(function(a,x){return a+(x.properties[k]||0);},0);};
+    var ds=['OO','RO'].map(function(t,i){return{label:t==='OO'?'Owner-occupied':'Renter-occupied',borderColor:i?'#e8636d':'#4d8ae8',backgroundColor:i?'#e8636d':'#4d8ae8',tension:.25,
+      data:ys.map(function(y){return agg(gj.features.filter(function(x){return String(x.properties.year)===y;}),t+S.group);})};});
+    document.getElementById('chartTitle').textContent='Citywide trend'; document.getElementById('chartSub').textContent=S.ds==='acs'?'Average tract share (%)':'Total occupied units';
+    chart=new Chart(c,{type:'line',data:{labels:ys,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10}}}}});
+  }
+  LB.seg(document.getElementById('dsSeg'),function(v){S.ds=v;draw();});
+  LB.seg(document.getElementById('tenSeg'),function(v){S.ten=v;draw();});
+  document.getElementById('group').onchange=function(e){S.group=e.target.value;draw();};
+  document.getElementById('year').onchange=function(e){S.year=e.target.value;draw();};
+  draw();
+})();
+</script>
+</body>
+</html>

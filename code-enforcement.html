@@ -18,8 +18,8 @@ body .wrap{padding-top:22px}
 </style>
 <style>
 :root{--bg:#0a0e1a;--panel:#141b2b;--panel2:#1c2437;--line:rgba(255,255,255,.08);
-  --ink:#eef2f9;--soft:#9aa6bd;--faint:#6b7891;
-  --blue:#4d8ae8;--amber:#F7BA21;--red:#e8636d;--purple:#a884e8;--green:#34d399}
+  --ink:#eef2f9;--soft:#9aa6bd;--faint:#8d9ab0;
+  --blue:#6ea0f0;--amber:#F7BA21;--red:#e8636d;--purple:#a884e8;--green:#34d399}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:'Outfit',system-ui,sans-serif;
@@ -80,7 +80,7 @@ select{font-family:inherit;font-size:13px;color:var(--ink);background:var(--pane
 .oname{font-size:13px;font-weight:500;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ometa{font-size:11px;color:var(--faint);margin-top:1px}
 .otype{display:inline-block;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:1px 5px;border-radius:4px;margin-right:5px}
-.t-LLC,.t-Corporation,.t-Limited{background:rgba(232,99,109,.14);color:var(--red)}
+.t-LLC,.t-Corporation,.t-Limited{background:rgba(232,99,109,.14);color:#f07a83}
 .t-Public{background:rgba(168,132,232,.14);color:var(--purple)}
 .oval{text-align:right}
 .oval .n{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
@@ -90,6 +90,8 @@ select{font-family:inherit;font-size:13px;color:var(--ink);background:var(--pane
 footer{margin-top:22px;color:var(--faint);font-size:12px;line-height:1.6;text-align:center}
 .loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;
   font-family:'Instrument Serif',serif;font-size:22px;color:var(--soft);z-index:9999;transition:opacity .4s}
+.grid>*{min-width:0}
+@media(max-width:600px){.wrap{padding-left:16px!important;padding-right:16px!important}}
 @media(max-width:900px){.grid{grid-template-columns:1fr}.rail{order:2}#map{height:440px}.stats{margin-left:0;width:100%}}
 /* embed mode (?embed): hide the internal title block — the Hub hero carries it — but keep the live stat band */
 html.embed .head>div:first-child{display:none}
@@ -114,7 +116,7 @@ html.embed .wrap{padding:14px 20px 40px}
     <div class="cg"><label>Records</label><div class="seg" id="vSeg">
       <button data-inc="0" class="on">Violations</button><button data-inc="1">+ Complaints</button></div></div>
     <div class="cg"><label>Years</label><div style="display:flex;gap:6px;align-items:center">
-      <select id="yFrom"></select><span style="color:var(--faint)">to</span><select id="yTo"></select></div></div>
+      <select id="yFrom" aria-label="From year"></select><span style="color:var(--faint)">to</span><select id="yTo" aria-label="To year"></select></div></div>
     <div class="cg"><label>Owner</label><div class="seg" id="ogSeg">
       <button data-og="all" class="on">All</button><button data-og="E">Entities</button>
       <button data-og="I">Individuals</button><button data-og="P">Public</button></div></div>
@@ -138,7 +140,7 @@ html.embed .wrap{padding:14px 20px 40px}
     <div class="rail">
       <div class="card lead">
         <h3>Owners on the hook <span class="badge" id="lbScope">all districts</span></h3>
-        <div class="cs" id="lbSub">Named entities ranked by total violations. Individuals stay anonymous.</div>
+        <div class="cs" id="lbSub">Largest owners ranked by total violations. Names withheld; labeled by owner type.</div>
         <div class="lb" id="leaderboard"></div>
       </div>
       <div class="card">
@@ -285,8 +287,8 @@ function renderLeaderboard(){
   }).filter(o=>o.cur>0);
   list.sort((a,b)=>b.cur-a.cur); list=list.slice(0,60);
   $('lbScope').textContent=byDist?('district '+state.dist):'all districts';
-  $('lbSub').textContent=(inc?'Named entities ranked by all service requests':'Named entities ranked by confirmed violations')
-    +(byDist?` in District ${state.dist}.`:'. Individuals stay anonymous.');
+  $('lbSub').textContent=(inc?'Largest owners ranked by all service requests':'Largest owners ranked by confirmed violations')
+    +(byDist?` in District ${state.dist}.`:'. Names withheld.');
   const lab=byDist?('in D'+state.dist):(inc?'requests':'violations');
   $('leaderboard').innerHTML=list.length?list.map((o,i)=>{
     const tcls='t-'+o.type.split(/[ /]/)[0];

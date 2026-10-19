@@ -1,0 +1,61 @@
+/* LiBRE — shared layout for the data-map pages migrated from ArcGIS Hub (ctpa, parcels, ud-filings, demographics, assisted-housing, data) */
+.mp{max-width:1280px;margin:0 auto;padding:26px 20px 60px}
+@media(max-width:600px){.mp{padding:18px 16px 48px}}
+.mp .head{display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:16px}
+.mp .kick{font-size:11.5px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin:0 0 6px}
+.mp h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4.5vw,46px);line-height:1;letter-spacing:-.01em}
+.mp .sub{font-size:14.5px;color:var(--soft);font-weight:300;max-width:62ch;margin:8px 0 0}
+.mp .stats{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.mp .stat{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px 15px;min-width:104px}
+.mp .stat .v{font-family:var(--serif);font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
+.mp .stat .l{font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.mp .controls{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end}
+.mp .cg{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mp .cg>label{font-size:10.5px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--faint)}
+.mp .seg{display:flex;background:var(--panel-3);border:1px solid var(--line);border-radius:9px;padding:2px;flex-wrap:wrap;gap:2px}
+.mp .seg button{font-family:inherit;font-size:12.5px;font-weight:500;color:var(--soft);background:none;border:none;padding:6px 10px;border-radius:7px;cursor:pointer}
+.mp .seg button:hover{color:var(--ink)}
+.mp .seg button.on{background:var(--blue);color:#04101f;font-weight:600}
+.mp .seg.amber button.on{background:var(--amber);color:#2a1d00}
+.mp select{font-family:inherit;font-size:13px;color:var(--ink);background:var(--panel-3);border:1px solid var(--line);border-radius:8px;padding:7px 10px;max-width:100%}
+.mp .grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px}
+.mp .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.mp .card{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0;padding:0}
+.mp .card h3{margin-bottom:0}
+.mp .card h3{font-family:var(--sans);font-size:13px;font-weight:600;padding:14px 16px 0;letter-spacing:-.01em}
+.mp .card .cs{font-size:11.5px;color:var(--faint);padding:2px 16px 12px}
+.mp .map{height:580px;width:100%;background:var(--bg)}
+.mp .leaflet-container{background:var(--bg);font-family:var(--sans)}
+.mp .rail{display:flex;flex-direction:column;gap:16px;min-width:0}
+.mp .chartbox{padding:0 14px 14px;height:230px;position:relative}
+.mp .legend{padding:4px 16px 14px;display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--soft)}
+.mp .legend .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-2px}
+.mp .readout{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--soft)}
+.mp .readout b{color:var(--ink);font-variant-numeric:tabular-nums}
+.mp .note{font-size:12px;color:var(--faint);line-height:1.6;margin-top:18px}
+.mp table{width:100%;border-collapse:collapse;font-size:12.5px}
+.mp th,.mp td{text-align:left;padding:8px 12px;border-top:1px solid var(--line);vertical-align:top}
+.mp th{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);font-weight:600}
+.mp td.n{text-align:right;font-variant-numeric:tabular-nums}
+.mp .tablewrap{max-height:420px;overflow:auto}
+.mp .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,14,26,.6);font-family:var(--serif);font-size:20px;color:var(--soft);z-index:500;pointer-events:none}
+.mp .mapwrap{position:relative}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#141b2b;color:#f1f5f9;border:1px solid rgba(255,255,255,.12)}
+.leaflet-popup-content{font-family:'Outfit',sans-serif;font-size:12.5px;line-height:1.5;margin:10px 14px}
+.leaflet-popup-content b{color:#F7BA21;font-weight:600}
+.leaflet-popup-content .pk{color:#94a3b8}
+.mp .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.mp a.tile{display:block;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:18px;color:var(--ink);transition:.15s}
+.mp a.tile:hover{border-color:var(--blue);transform:translateY(-2px)}
+.mp a.tile h3{padding:0;font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:6px}
+.mp a.tile p{font-size:13px;color:var(--soft);font-weight:300}
+@media(max-width:900px){.mp .grid,.mp .grid2{grid-template-columns:1fr}.mp .map{height:440px}.mp .stats{margin-left:0;width:100%}}
+/* accessibility helpers */
+.mp .card .h3{font-family:var(--sans);font-size:13px;font-weight:600;padding:14px 16px 0;letter-spacing:-.01em;margin:0;line-height:1.3}
+.mp .cg>.lbl{font-size:10.5px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--faint)}
+.mp .linkish{font:inherit;color:var(--blue);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.mp details summary:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.mp .seg button[aria-pressed="true"]{box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}
+html.embed .mp{padding-top:12px}
+/* links inside body text are underlined so they don't rely on color alone */
+.mp td a,.mp p a,.mp .note a,.mp .cs a{text-decoration:underline;text-underline-offset:2px}

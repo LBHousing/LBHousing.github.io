@@ -13,7 +13,7 @@
 :root{
   --bg:#0a0e1a; --bg2:#0c1324; --ink:#f1f5f9; --soft:#aeb8cc; --faint:#7a8398;
   --line:rgba(255,255,255,.1); --panel:#131a29; --panelbg:rgba(9,13,24,.74);
-  --blue:#4d8ae8; --amber:#F7BA21; --red:#e8636d; --green:#34d399; --purple:#a884e8;
+  --blue:#6ea0f0; --amber:#F7BA21; --red:#e8636d; --green:#34d399; --purple:#a884e8;
   --serif:'Instrument Serif',Georgia,serif; --sans:'Outfit',system-ui,-apple-system,sans-serif;
   color-scheme:dark;
 }
@@ -599,7 +599,7 @@ observeOnce(document.getElementById('reachChart'),function(){
 
 /* ---------- forces: corporate-owner leaderboard ---------- */
 (function(){
-  var OWNERS=[['Avanath Seaport LP',66],['Penn Properties LLC',63],['WP LBMF LLC',56],['923 Long Beach LLC',52],['Dawn Patrol LLC',50],['Ocean Structure Inc',44]];
+  var OWNERS=[['LP owner #1',66],['LLC owner #1',63],['LLC owner #2',56],['LLC owner #3',52],['LLC owner #4',50],['Corporate owner #1',44]];
   var box=document.getElementById('ownerbars');if(!box)return;
   var max=OWNERS[0][1];
   OWNERS.forEach(function(o){

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assisted Housing — LiBRE</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="maps.css">
+</head>
+<body>
+<main class="mp">
+  <div class="head">
+    <div>
+      <p class="kick">LiBRE · HUD Map</p>
+      <h1>Assisted housing in Long Beach</h1>
+      <p class="sub">HUD-subsidized multifamily properties, shown over tract-level rent burden. Expiring subsidy contracts are where affordable homes can be lost.</p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="controls">
+    <div class="cg"><label>Background</label><div class="seg" id="bgSeg">
+      <button data-v="pct_burden" class="on">Rent-burdened</button><button data-v="pct_severe">Severely burdened</button><button data-v="none">None</button></div></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>HUD-assisted properties</h3><div class="cs">Circle size = total units. Click for subsidy details.</div>
+      <div class="mapwrap"><div id="map" class="map"></div></div>
+    </div>
+    <div class="rail">
+      <div class="card"><h3>Legend</h3><div class="cs" id="bgNote">Share of renter households paying 30%+ of income on rent</div><div class="legend" id="legend"></div></div>
+      <div class="card"><h3>Subsidy contracts ending soonest</h3><div class="cs">By latest contract end date</div><div class="tablewrap"><table id="tbl"></table></div></div>
+    </div>
+  </div>
+  <p class="note">Sources: HUD Multifamily Assistance &amp; Section 8 Contracts database (geocoded by LiBRE), ACS rent burden by tract. Owner and manager names are withheld; only their HUD-reported type is shown.</p>
+</main>
+<script src="nav.js"></script>
+<script src="maps-common.js"></script>
+<script>
+(function(){
+  var map=LB.baseMap('map'), tracts=null, bg='pct_burden';
+  var col=LB.ramp([30,40,50,60],['#1d2540','#33406e','#5a4a8f','#9d4f86','#e8636d']);
+  function legend(){ if(bg==='none'){document.getElementById('legend').innerHTML='';document.getElementById('bgNote').textContent='No background layer';return;}
+    document.getElementById('bgNote').textContent=bg==='pct_burden'?'Share of renter households paying 30%+ of income on rent':'Share paying 50%+ of income on rent';
+    LB.legend(document.getElementById('legend'),[['#1d2540','≤ 30%'],['#33406e','30–40%'],['#5a4a8f','40–50%'],['#9d4f86','50–60%'],['#e8636d','> 60%'],['#F7BA21','HUD-assisted property']]); }
+  LB.getJSON('data/housing-maps/lb_tracts.geojson').then(function(gj){
+    tracts=L.geoJSON(gj,{style:style,onEachFeature:function(f,l){l.bindTooltip('Tract '+f.properties.GEOID.slice(5)+': <b>'+LB.fmt(f.properties[bg],1)+'%</b>',{sticky:true});}}).addTo(map);
+    tracts.bringToBack(); LB.districts(map,{weight:1.2,opacity:.6}); props();
+  });
+  function style(f){return bg==='none'?{opacity:0,fillOpacity:0}:{color:'rgba(255,255,255,.12)',weight:.5,fillColor:col(f.properties[bg]),fillOpacity:.7};}
+  LB.seg(document.getElementById('bgSeg'),function(v){bg=v;if(tracts)tracts.setStyle(style);legend();});
+  legend();
+  function props(){ LB.getJSON('data/arcgis/hud_assisted_properties.geojson').then(function(gj){
+    var F=gj.features, units=0, assisted=0;
+    F.forEach(function(f){var p=f.properties;units+=p.units||0;assisted+=parseInt(p.assisted_units)||0;
+      L.circleMarker([f.geometry.coordinates[1],f.geometry.coordinates[0]],{radius:4+Math.sqrt(p.units||1)/1.6,color:'#0a0e1a',weight:1,fillColor:'#F7BA21',fillOpacity:.9}).addTo(map)
+       .bindPopup('<b>'+LB.esc(p.name)+'</b><br>'+LB.esc(p.address)+'<br><span class="pk">Units:</span> '+LB.fmt(p.units)+' ('+LB.esc(p.assisted_units)+' assisted)<br><span class="pk">Subsidy:</span> '+LB.esc(p.subsidy)+
+         '<br><span class="pk">Contract ends:</span> '+LB.esc(p.end_date||'—')+'<br><span class="pk">Population:</span> '+LB.esc(p.target||'—')+'<br><span class="pk">Owner type:</span> '+LB.esc(p.owner_type||'—')+'<br><span class="pk">Manager type:</span> '+LB.esc(p.manager_type||'—')+'<br><span class="pk">District:</span> '+p.district);});
+    document.getElementById('stats').innerHTML=[[F.length,'Properties'],[LB.fmt(units),'Total units'],[LB.fmt(assisted),'Assisted units']]
+      .map(function(x){return '<div class="stat"><div class="v">'+x[0]+'</div><div class="l">'+x[1]+'</div></div>';}).join('');
+    var d=function(s){var m=(s||'').match(/(\d+)\/(\d+)\/(\d{4})/);return m?new Date(+m[3],m[1]-1,+m[2]):null;};
+    var rows=F.map(function(f){return f.properties;}).sort(function(a,b){return (d(a.end_date)||9e15)-(d(b.end_date)||9e15);});
+    document.getElementById('tbl').innerHTML='<tr><th>Property</th><th>Ends</th><th class="n">Units</th></tr>'+rows.map(function(p){return '<tr><td>'+LB.esc(p.name)+'<br><span style="color:var(--faint)">D'+p.district+' · '+LB.esc(p.subsidy)+'</span></td><td>'+LB.esc(p.end_date||'—')+'</td><td class="n">'+LB.fmt(p.units)+'</td></tr>';}).join('');
+  }); }
+})();
+</script>
+</body>
+</html>

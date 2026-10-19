@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eviction Filings Over Time — LiBRE</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="maps.css">
+</head>
+<body>
+<main class="mp">
+  <div class="head">
+    <div>
+      <p class="kick">LiBRE · Unlawful Detainers</p>
+      <h1>Eviction filings over time</h1>
+      <p class="sub">Unlawful detainer (UD) lawsuits filed against Long Beach tenants each month since 2009, and where recent filings land by ZIP code.</p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="card">
+    <h3>Monthly UD filings, Long Beach</h3><div class="cs">Citywide count of unlawful detainer cases filed per month</div>
+    <div class="chartbox" style="height:280px"><canvas id="trend"></canvas></div>
+  </div>
+  <div class="grid" style="margin-top:16px">
+    <div class="card">
+      <h3 id="zipTitle">Filings by ZIP code</h3><div class="cs">Choose a month below. Darker = more filings.</div>
+      <div class="mapwrap"><div id="map" class="map" style="height:500px"></div></div>
+      <div class="readout"><span>Month <select id="month" aria-label="Month"></select></span><span><b id="zipTotal">0</b> filings in mapped ZIPs</span></div>
+    </div>
+    <div class="rail">
+      <div class="card"><h3>Legend</h3><div class="cs">Filings per ZIP, selected month</div><div class="legend" id="legend"></div></div>
+      <div class="card"><h3>Eviction cases by council district</h3><div class="cs">Cases in LiBRE's eviction dataset, by year served</div><div class="chartbox" style="height:260px"><canvas id="dist"></canvas></div></div>
+    </div>
+  </div>
+  <p class="note">Sources: LongBeach UD 2009–2022 and UD Filings (ArcGIS), compiled from LA Superior Court unlawful detainer filings. District counts are aggregated from LiBRE's eviction case data; no case-level or address-level records are published.</p>
+</main>
+<script src="nav.js"></script>
+<script src="maps-common.js"></script>
+<script>
+(function(){
+  function csv(t){var r=t.trim().split(/\r?\n/),h=r.shift().split(',');return r.map(function(l){var v=l.split(','),o={};h.forEach(function(k,i){o[k]=v[i];});return o;});}
+  fetch('data/arcgis/ud_filings_monthly.csv').then(function(r){return r.text();}).then(function(t){
+    var rows=csv(t).filter(function(r){return r.filings!=='';}), vals=rows.map(function(r){return +r.filings;});
+    var byYear={}; rows.forEach(function(r){var y=r.month.slice(0,4);byYear[y]=(byYear[y]||0)+(+r.filings);});
+    var yrs=Object.keys(byYear).sort(), full=yrs.filter(function(y){return rows.filter(function(r){return r.month.slice(0,4)===y;}).length===12;});
+    var peak=full.reduce(function(a,b){return byYear[b]>byYear[a]?b:a;},full[0]);
+    document.getElementById('stats').innerHTML=[[LB.fmt(vals.reduce(function(a,b){return a+b;},0)),'Filings since '+yrs[0]],[peak,'Peak year'],[LB.fmt(byYear[peak]),'Filings in '+peak]]
+      .map(function(x){return '<div class="stat"><div class="v">'+x[0]+'</div><div class="l">'+x[1]+'</div></div>';}).join('');
+    new Chart(document.getElementById('trend'),{type:'line',data:{labels:rows.map(function(r){return r.month;}),datasets:[{data:vals,borderColor:'#e8636d',backgroundColor:'rgba(232,99,109,.15)',fill:true,pointRadius:0,borderWidth:1.6,tension:.25}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:16}},y:{beginAtZero:true}}}});
+  });
+  var map=LB.baseMap('map'), layer=null, data=null;
+  var col=LB.ramp([5,10,20,35,60],['#2b2f4a','#4a3a6b','#7B4EAF','#c0457a','#e8636d','#ff8a65']);
+  LB.legend(document.getElementById('legend'),[['#2b2f4a','0–5'],['#4a3a6b','6–10'],['#7B4EAF','11–20'],['#c0457a','21–35'],['#e8636d','36–60'],['#ff8a65','61+']]);
+  LB.getJSON('data/arcgis/ud_filings_by_zip.geojson').then(function(gj){
+    data=gj; var months=Array.from(new Set(gj.features.map(function(f){return f.properties.date;}).filter(Boolean))).sort();
+    var sel=document.getElementById('month'); sel.innerHTML=months.map(function(m){return '<option>'+m.slice(0,7)+'</option>';}).join(''); sel.value=months[months.length-1].slice(0,7);
+    sel.onchange=draw; draw();
+  });
+  function draw(){
+    var m=document.getElementById('month').value, fs=data.features.filter(function(f){return (f.properties.date||'').slice(0,7)===m;});
+    if(layer) map.removeLayer(layer);
+    layer=L.geoJSON({type:'FeatureCollection',features:fs},{style:function(f){return{color:'#94a3b8',weight:1,fillColor:col(f.properties.total),fillOpacity:.75};},
+      onEachFeature:function(f,l){l.bindTooltip('<b>'+f.properties.zip+'</b>: '+f.properties.total+' filings',{sticky:true});}}).addTo(map);
+    if(fs.length) map.fitBounds(layer.getBounds(),{padding:[10,10]});
+    document.getElementById('zipTotal').textContent=LB.fmt(fs.reduce(function(a,f){return a+(f.properties.total||0);},0));
+    document.getElementById('zipTitle').textContent='Filings by ZIP code — '+m;
+  }
+  fetch('data/arcgis/evictions_by_year_district.csv').then(function(r){return r.text();}).then(function(t){
+    var rows=csv(t).filter(function(r){return r.year!=='unknown'&&r.council_district&&r.council_district!=='None';});
+    var yrs=Array.from(new Set(rows.map(function(r){return r.year;}))).sort(), ds=['1','2','3','4','5','6','7','8','9'];
+    var pal=['#4d8ae8','#e8636d','#F7BA21','#34d399','#9d6fc7','#ff8a65','#149ece','#a7c636','#f789d8'];
+    new Chart(document.getElementById('dist'),{type:'bar',data:{labels:ds.map(function(d){return 'D'+d;}),datasets:yrs.map(function(y,i){return{label:y,backgroundColor:pal[i%pal.length],
+      data:ds.map(function(d){var r=rows.find(function(x){return x.year===y&&x.council_district===d;});return r?+r.cases:0;})};})},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{x:{stacked:true},y:{stacked:true}}}});
+  });
+})();
+</script>
+</body>
+</html>

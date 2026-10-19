@@ -6,6 +6,8 @@
 <title>Housing Maps — LiBRE</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="stylesheet" href="theme.css">
 <style>
 .cx{max-width:1140px;margin:0 auto;padding:0 24px}
@@ -21,11 +23,11 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .h-hero .hero::after{content:'';position:absolute;bottom:-200px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(39,106,219,.12) 0%,transparent 60%);pointer-events:none;animation:h-hero-drift 14s ease-in-out infinite alternate-reverse}
 @keyframes h-hero-drift{0%{transform:translate(0,0)}100%{transform:translate(30px,-25px)}}
 .h-hero .inner{position:relative;z-index:1;max-width:800px;margin:0 auto}
-.h-hero .tag{display:inline-flex;align-items:center;gap:8px;background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:500;color:#D2333F;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px}
+.h-hero .tag{display:inline-flex;align-items:center;gap:8px;background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:500;color:#f07a83;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px}
 .h-hero .tag .dot{width:6px;height:6px;background:#D2333F;border-radius:50%;animation:h-hero-pulse 2s infinite}
 @keyframes h-hero-pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .h-hero h1{font-family:'Instrument Serif',serif;font-size:clamp(36px,6.5vw,66px);font-weight:400;line-height:1.08;margin-bottom:20px;letter-spacing:-.02em}
-.h-hero h1 em{font-style:italic;color:#D2333F}
+.h-hero h1 em{font-style:italic;color:#f07a83}
 .h-hero h1 .thin{font-weight:300;color:#94a3b8}
 .h-hero .sub{font-size:18px;color:#94a3b8;max-width:640px;line-height:1.7;font-weight:300}
 .h-hero .sub strong{color:#f1f5f9;font-weight:500}
@@ -37,11 +39,11 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .h-tl .map-card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;margin-bottom:20px}
 .h-tl .map-header{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
 .h-tl .map-header h3{font-size:15px;font-weight:600}
-.h-tl .map-header .tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#64748b}
+.h-tl .map-header .tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#8d9ab0}
 .h-tl .map-frame{width:100%;height:500px;border:none;display:block}
 .h-tl .map-legend{padding:14px 20px;border-top:1px solid rgba(255,255,255,.06);display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:#94a3b8}
 .h-tl .map-legend .dot{width:14px;height:14px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:6px}
-.h-tl .map-note{padding:0 20px 14px;font-size:11px;color:#64748b;font-style:italic}
+.h-tl .map-note{padding:0 20px 14px;font-size:11px;color:#8d9ab0;font-style:italic}
 .h-tl .card{background:#1e2540;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:36px}
 .h-tl h2{font-family:'Instrument Serif',serif;font-size:28px;font-weight:400;margin-bottom:20px}
 .h-tl .timeline{position:relative;padding-left:32px;margin:24px 0}
@@ -110,7 +112,7 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 .h-ac .contact{font-size:13px;font-weight:600;margin-top:12px}
 .h-ac .contact.gn{color:#34d399}
 .h-ac .contact.pp{color:#F7BA21}
-.h-ac .contact.bl{color:#4d8ae8}
+.h-ac .contact.bl{color:#6ea0f0}
 @media(max-width:600px){.h-ac .grid{grid-template-columns:1fr}}
 .h-nd *{box-sizing:border-box;margin:0;padding:0}
 .h-nd{font-family:'Outfit',sans-serif;background:#0a0e1a;color:#f1f5f9;padding:0 28px}
@@ -141,18 +143,15 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
       <h3>HOLC "Residential Security" Map — Long Beach Area (1939)</h3>
       <span class="tag">Source: Mapping Inequality · University of Richmond</span>
     </div>
-    <!-- Mapping Inequality interactive embed centered on Long Beach -->
-    <iframe class="map-frame"
-      src="https://dsl.richmond.edu/panorama/redlining/map#loc=12/33.81/-118.19&city=los-angeles-ca"
-      title="HOLC Redlining Map of Long Beach area from the 1930s - interactive map from Mapping Inequality project"
-      allowfullscreen></iframe>
+    <!-- Local HOLC map (replaces the external Mapping Inequality iframe) -->
+    <div id="holcMap" class="map-frame" role="region" aria-label="Map of 1939 HOLC grades in Long Beach. Each zone is listed in the table below the map."></div>
     <div class="map-legend">
       <span><span class="dot" style="background:#4daf4a"></span>Grade A — "Best" (green)</span>
       <span><span class="dot" style="background:#377eb8"></span>Grade B — "Still Desirable" (blue)</span>
       <span><span class="dot" style="background:#F7BA21"></span>Grade C — "Declining" (yellow)</span>
-      <span><span class="dot" style="background:#D2333F"></span>Grade D — "Hazardous" (red) — <strong style="color:#D2333F">redlined</strong></span>
+      <span><span class="dot" style="background:#D2333F"></span>Grade D — "Hazardous" (red) — <strong style="color:#f07a83">redlined</strong></span>
     </div>
-    <div class="map-note">Pan and zoom to explore Long Beach. Click any colored zone to read the original 1930s appraisal notes — including explicit references to race and "undesirable" populations.</div>
+    <div class="map-note">Pan and zoom to explore Long Beach, or select a zone for its grade. The original 1930s appraisal notes — including explicit references to race and “undesirable” populations — can be read on <a href="https://dsl.richmond.edu/panorama/redlining/map#loc=12/33.81/-118.19&amp;city=los-angeles-ca" target="_blank" rel="noopener">Mapping Inequality<span class="sr-only"> (opens in a new tab)</span></a>.<details style="margin-top:10px"><summary style="cursor:pointer">List of zones</summary><div id="holcList" style="font-size:13px;columns:2;margin-top:8px"></div></details></div>
   </div>
 
   <!-- ── Timeline ── -->
@@ -162,7 +161,7 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 
       <div class="tl-item">
         <div class="tl-year">1930s–1940s · Redlining</div>
-        <div class="tl-text"><strong>The Home Owners' Loan Corporation (HOLC)</strong> graded Long Beach neighborhoods by perceived "lending risk" — but race was the dominant factor. The map above shows the results: communities of color were coded <strong style="color:#D2333F">"Hazardous" (red)</strong>, cutting them off from mortgage lending and trapping residents in deteriorating housing.
+        <div class="tl-text"><strong>The Home Owners' Loan Corporation (HOLC)</strong> graded Long Beach neighborhoods by perceived "lending risk" — but race was the dominant factor. The map above shows the results: communities of color were coded <strong style="color:#f07a83">"Hazardous" (red)</strong>, cutting them off from mortgage lending and trapping residents in deteriorating housing.
           <ul>
             <li>Banks refused to lend in red-graded areas — no mortgages, no home equity, no wealth building</li>
             <li>The FHA adopted similar maps, amplifying the damage across federal housing programs</li>
@@ -196,7 +195,7 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 
       <div class="tl-item">
         <div class="tl-year">2000s–Present · The Crisis Today</div>
-        <div class="tl-text">These same neighborhoods now have the <strong style="color:#D2333F">highest rates of code violations</strong>, the <strong style="color:#D2333F">most eviction filings</strong>, and the <strong style="color:#D2333F">greatest concentration of cost-burdened renters</strong>. Corporate entities are buying up properties in these areas, and the tenants — disproportionately BIPOC — face displacement.
+        <div class="tl-text">These same neighborhoods now have the <strong style="color:#f07a83">highest rates of code violations</strong>, the <strong style="color:#f07a83">most eviction filings</strong>, and the <strong style="color:#f07a83">greatest concentration of cost-burdened renters</strong>. Corporate entities are buying up properties in these areas, and the tenants — disproportionately BIPOC — face displacement.
           <ul>
             <li>53.1% of Long Beach renters are cost burdened — spending 30%+ of income on housing</li>
             <li>24.9% of all dwelling units are now owned by LLCs, corporations, and partnerships</li>
@@ -226,7 +225,7 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 <div class="cx h-ne">
 <div class="card">
   <h2>The Eviction-Violation Connection</h2>
-  <p>Evictions and housing violations are two sides of the same coin. Tenants who report violations often face <strong style="color:#D2333F">retaliatory eviction filings</strong> — even though retaliation is illegal. Meanwhile, tenants living in unsafe conditions may fall behind on rent due to related expenses (medical costs from mold, replacing broken appliances, temporary housing during repairs), putting them at risk of eviction for nonpayment.</p>
+  <p>Evictions and housing violations are two sides of the same coin. Tenants who report violations often face <strong style="color:#f07a83">retaliatory eviction filings</strong> — even though retaliation is illegal. Meanwhile, tenants living in unsafe conditions may fall behind on rent due to related expenses (medical costs from mold, replacing broken appliances, temporary housing during repairs), putting them at risk of eviction for nonpayment.</p>
   <p>The heat map above shows how eviction filings cluster in specific neighborhoods. When you compare this to the violations dashboard, the overlap is striking: <strong>the neighborhoods with the most code violations are the same ones with the most evictions.</strong></p>
   <div class="hl"><strong>The cycle:</strong> Disinvestment → deteriorating conditions → violations → landlord retaliation or rent increases → eviction → displacement. This cycle repeats block by block, building by building, across the same communities that were redlined a century ago.</div>
 </div>
@@ -251,7 +250,7 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
   <div class="card c-bl">
     <h3>Get Involved with LiBRE</h3>
     <p>Join Know Your Rights workshops, connect with tenant organizing, and help build power for housing justice in Long Beach.</p>
-    <p class="contact bl"><a href="https://www.wearelbre.org/" style="color:#4d8ae8" target="_blank">Visit wearelbre.org →</a></p>
+    <p class="contact bl"><a href="https://www.wearelbre.org/" style="color:#6ea0f0" target="_blank">Visit wearelbre.org →</a></p>
   </div>
 </div>
 </div>
@@ -259,12 +258,26 @@ section.cx-block{padding:clamp(40px,6vw,72px) 0;border-top:1px solid var(--line)
 <div class="cx h-nd">
 <div class="card">
   <h2>Housing Justice is Racial Justice</h2>
-  <p>The data makes the connection undeniable. Long Beach's <strong style="color:#7B4EAF">Black and African American</strong> community has faced a housing struggle rooted in decades of discriminatory policy. <strong style="color:#7B4EAF">Latino</strong> families face some of the highest rent burden rates in the city. <strong style="color:#7B4EAF">Southeast Asian</strong> communities — particularly Cambodian refugees who rebuilt their lives in Long Beach — are concentrated in areas with high violation counts and aging housing stock.</p>
+  <p>The data makes the connection undeniable. Long Beach's <strong style="color:#b49cf0">Black and African American</strong> community has faced a housing struggle rooted in decades of discriminatory policy. <strong style="color:#b49cf0">Latino</strong> families face some of the highest rent burden rates in the city. <strong style="color:#b49cf0">Southeast Asian</strong> communities — particularly Cambodian refugees who rebuilt their lives in Long Beach — are concentrated in areas with high violation counts and aging housing stock.</p>
   <p>These patterns are not accidents of the market. They are the direct, traceable legacy of policies that determined where people of color could live, whether they could own property, and how much investment their neighborhoods would receive. Understanding this history is essential to building policies that repair the damage rather than perpetuate it.</p>
   <div class="hl"><strong>The data tools on this page exist for a reason:</strong> to make the invisible visible. When you can see the violations, map the evictions, and overlay the demographics, the pattern becomes impossible to ignore — and impossible to dismiss.</div>
 </div>
 </div>
 <script src="nav.js"></script>
+<script src="maps-common.js"></script>
+<script>
+(function(){
+  var el=document.getElementById('holcMap'); if(!el||!window.L) return;
+  var C={A:'#4daf4a',B:'#377eb8',C:'#F7BA21',D:'#D2333F'}, map=LB.baseMap('holcMap',{scrollWheelZoom:false});
+  LB.getJSON('data/housing-maps/holc_long_beach.geojson').then(function(gj){
+    var lyr=L.geoJSON(gj,{style:function(f){var c=C[f.properties.grade]||'#888';return{color:c,weight:1.5,fillColor:c,fillOpacity:.45};},
+      onEachFeature:function(f,l){var p=f.properties;l.bindTooltip('Zone '+LB.esc(p.label)+' — Grade '+LB.esc(p.grade)+' ('+LB.esc(p.category)+')',{sticky:true});}}).addTo(map);
+    map.fitBounds(lyr.getBounds(),{padding:[10,10]});
+    var list=gj.features.map(function(f){return f.properties;}).sort(function(a,b){return a.label.localeCompare(b.label,undefined,{numeric:true});});
+    document.getElementById('holcList').innerHTML=list.map(function(p){return '<div>'+LB.esc(p.label)+': Grade '+LB.esc(p.grade)+' — '+LB.esc(p.category)+'</div>';}).join('');
+  });
+})();
+</script>
 
 </body>
 </html>

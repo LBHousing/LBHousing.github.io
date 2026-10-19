@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tenant Protections (TPA) Map — LiBRE</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="maps.css">
+</head>
+<body>
+<main class="mp">
+  <div class="head">
+    <div>
+      <p class="kick">LiBRE · Tenant Protection Act</p>
+      <h1>Who the TPA covers</h1>
+      <p class="sub">Every residential parcel in Long Beach by housing type and year built. California's Tenant Protection Act (AB 1482) caps rent increases and requires just cause for eviction — but single-family homes owned by individuals and buildings newer than 15 years are exempt.</p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="controls">
+    <div class="cg"><label>Council district</label><div class="seg amber" id="dSeg"></div></div>
+    <div class="cg"><label>Color by</label><div class="seg" id="cSeg">
+      <button data-v="type" class="on">Housing type</button><button data-v="age">Built within 15 years</button></div></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3 id="mapTitle">Parcels</h3><div class="cs">Assessor parcels (LA County, Jan 2024). Click a parcel for details.</div>
+      <div class="mapwrap"><div id="map" class="map"></div><div class="loading" id="loading">Loading parcels…</div></div>
+      <div class="readout"><span><b id="shown">0</b> parcels shown</span><span id="exemptNote"></span></div>
+    </div>
+    <div class="rail">
+      <div class="card"><h3>Legend</h3><div class="cs">&nbsp;</div><div class="legend" id="legend"></div></div>
+      <div class="card"><h3>Housing type by district</h3><div class="cs">Parcel counts</div><div class="chartbox" style="height:300px"><canvas id="chart"></canvas></div></div>
+    </div>
+  </div>
+  <p class="note">Source: LiBRE TPA Map (ArcGIS), LA County Assessor parcel data current as of Jan 1, 2024. “Built within 15 years” uses the effective year built and is a screening indicator only — TPA coverage also depends on ownership and other exemptions. Assessor staff IDs and recorder document numbers were removed before publishing.</p>
+</main>
+<script src="nav.js"></script>
+<script src="maps-common.js"></script>
+<script>
+(function(){
+  var TYPES=['Single family Residential','Two-family Residential','Low-density Multi-family Residential','Dense Multiple Residential'];
+  var TCOL=['#ed5151','#149ece','#9e559c','#a7c636']; var OTHER='#5b6478';
+  var mode='type', dist='1', layer=null, CUT=new Date().getFullYear()-15;
+  var map=LB.baseMap('map'); LB.districts(map,{weight:1.2});
+  var dSeg=document.getElementById('dSeg');
+  for(var i=1;i<=9;i++) dSeg.insertAdjacentHTML('beforeend','<button data-v="'+i+'"'+(i==1?' class="on"':'')+'>'+i+'</button>');
+  function color(p){ if(mode==='age') return p.yr&&p.yr>CUT?'#F7BA21':(p.yr?'#3b4b6a':OTHER); return p.t>=0?TCOL[p.t]:OTHER; }
+  function legend(){ LB.legend(document.getElementById('legend'), mode==='type'
+      ? TYPES.map(function(t,i){return [TCOL[i],t];}).concat([[OTHER,'Other / non-residential']])
+      : [['#F7BA21','Built after '+CUT+' (likely TPA-exempt)'],['#3b4b6a','Built '+CUT+' or earlier'],[OTHER,'Year unknown']]); }
+  function restyle(){ if(layer) layer.setStyle(function(f){var c=color(f.properties);return{color:c,fillColor:c,weight:.3,fillOpacity:.75,opacity:.9};}); legend(); }
+  function load(d){
+    document.getElementById('loading').style.display='flex';
+    LB.getJSON('data/arcgis/tpa_parcels/d'+d+'.geojson').then(function(gj){
+      if(layer) map.removeLayer(layer);
+      layer=L.geoJSON(gj,{style:function(f){var c=color(f.properties);return{color:c,fillColor:c,weight:.3,fillOpacity:.75,opacity:.9};},
+        onEachFeature:function(f,l){l.on('click',function(e){var p=f.properties;L.popup().setLatLng(e.latlng).setContent(
+          '<b>'+LB.esc(p.t>=0?TYPES[p.t]:'Other')+'</b><br><span class="pk">Year built:</span> '+(p.yr||'—')+'<br><span class="pk">Council district:</span> '+p.d+
+          (p.yr&&p.yr>CUT?'<br><span style="color:#F7BA21">Newer than 15 years — likely TPA-exempt</span>':'')).openOn(map);});}}).addTo(map);
+      map.fitBounds(layer.getBounds(),{padding:[10,10]});
+      var n=gj.features.length, ex=gj.features.filter(function(f){return f.properties.yr&&f.properties.yr>CUT;}).length;
+      document.getElementById('shown').textContent=LB.fmt(n);
+      document.getElementById('exemptNote').innerHTML='<b>'+LB.fmt(ex)+'</b> built after '+CUT;
+      document.getElementById('mapTitle').textContent='Council District '+d;
+      document.getElementById('loading').style.display='none';
+    }).catch(function(e){document.getElementById('loading').textContent='Could not load data';console.error(e);});
+  }
+  LB.seg(dSeg,function(v){dist=v;load(v);});
+  LB.seg(document.getElementById('cSeg'),function(v){mode=v;restyle();});
+  legend(); load(dist);
+  LB.getJSON('data/arcgis/summary.json').then(function(s){
+    var by=s.tpa.by_district, tot=0, sf=0, ex=0, ds=Object.keys(by).filter(function(k){return k!=='0'&&k!=='null';}).sort(function(a,b){return a-b;});
+    ds.forEach(function(k){var o=by[k];Object.keys(o).forEach(function(t){if(t!=='_exempt_new')tot+=o[t];});sf+=o[TYPES[0]]||0;ex+=o._exempt_new||0;});
+    document.getElementById('stats').innerHTML=[[LB.fmt(tot),'Parcels'],[LB.pct(sf/tot,0),'Single-family'],[LB.fmt(ex),'Built after '+s.tpa.exempt_cutoff_year]]
+      .map(function(x){return '<div class="stat"><div class="v">'+x[0]+'</div><div class="l">'+x[1]+'</div></div>';}).join('');
+    new Chart(document.getElementById('chart'),{type:'bar',data:{labels:ds.map(function(d){return 'D'+d;}),
+      datasets:TYPES.map(function(t,i){return{label:t.replace(' Residential',''),data:ds.map(function(d){return by[d][t]||0;}),backgroundColor:TCOL[i]};})},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{x:{stacked:true},y:{stacked:true}}}});
+  });
+})();
+</script>
+</body>
+</html>

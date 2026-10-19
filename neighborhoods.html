@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Neighborhood Conditions — LiBRE</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="maps.css">
+</head>
+<body>
+<main class="mp">
+  <div class="head">
+    <div>
+      <p class="kick">LiBRE · Poverty, Housing &amp; Equity</p>
+      <h1>Neighborhood conditions</h1>
+      <p class="sub">Poverty, housing availability, rents and equity need across Long Beach, by census tract and ZIP code. This page replaces our Poverty Dashboard, Housing Availability, ACS Demographic Stats, Median Contract Rent and Equity dashboards.</p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="controls">
+    <div class="cg"><label>Geography</label><div class="seg" id="geoSeg"><button data-v="tract" class="on">Census tracts</button><button data-v="zip">ZIP equity indices</button></div></div>
+    <div class="cg" style="min-width:240px"><label>Measure</label><select id="metric" aria-label="Measure"></select></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3 id="title">Map</h3><div class="cs" id="desc">&nbsp;</div>
+      <div class="mapwrap"><div id="map" class="map"></div></div>
+      <div class="readout"><span id="readout">Click a tract or ZIP for its full profile.</span></div>
+    </div>
+    <div class="rail">
+      <div class="card"><h3>Legend</h3><div class="cs">Quintiles across Long Beach</div><div class="legend" id="legend"></div></div>
+      <div class="card"><h3 id="profTitle">Profile</h3><div class="cs" id="profSub">Citywide medians</div><div class="tablewrap" style="max-height:330px"><table id="prof"></table></div></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>Median contract rent, 2010–2020</h3><div class="cs" id="rentSub">Median across Long Beach tracts. Click a tract to compare.</div><div class="chartbox" style="height:260px"><canvas id="rent"></canvas></div></div>
+    <div class="card"><h3>Poverty vs. renter share</h3><div class="cs">Each dot is a census tract</div><div class="chartbox" style="height:260px"><canvas id="scatter"></canvas></div></div>
+  </div>
+  <p class="note">Sources: American Community Survey 5-year estimates via Esri Living Atlas (B17020 poverty, B25002/B25003 occupancy &amp; tenure, B25058 median contract rent, B25077 home value, B19049 income, B03002 race &amp; ethnicity, B05003 nativity); Median Contract Rent 2010–2020 compiled by LiBRE; LA County Justice Equity Need Index (JENI) and Tenant Vulnerability Index. ACS values are estimates with margins of error, so small tracts can swing year to year.</p>
+</main>
+<script src="nav.js"></script>
+<script src="maps-common.js"></script>
+<script>
+(function(){
+  var TM=[['pov','Poverty rate','%','Share of people below the federal poverty line'],['child_pov','Child poverty rate','%','Share of children below the poverty line'],
+    ['rent','Renter households','%','Share of occupied homes that are rented'],['vac','Vacancy rate','%','Share of housing units that are vacant'],
+    ['med_rent','Median contract rent','$','Median monthly contract rent'],['med_value','Median home value','$','Median value of owner-occupied homes'],
+    ['med_income','Median household income','$','Median household income, past 12 months'],['burden','Rent-burdened renters','%','Renters paying 30%+ of income on rent (2010-tract match)'],
+    ['latino','Hispanic / Latino','%','Share of residents'],['black','Black','%','Share of residents'],['asian','Asian','%','Share of residents'],['white','White (non-Hispanic)','%','Share of residents'],
+    ['foreign_born','Foreign-born','%','Share of residents born outside the US'],['o65','Age 65+','%','Share of residents'],['pop','Population','#','Total residents']];
+  var ZM=[['jeni','Justice Equity Need Index','pct','Percentile of need (higher = greater need)'],['risk','JENI: criminal-legal risk','pct','Percentile'],['drivers','JENI: community drivers','pct','Percentile'],['system','JENI: system involvement','pct','Percentile'],
+    ['tvi_rank','Tenant Vulnerability rank','#','County rank (lower = more vulnerable)'],['rent_burdened','Rent-burdened renters','#','Renter households paying 30%+'],['renters_pov','Renters below poverty','#','Renter households'],['renter_med_inc','Renter median income','$','Median income of renter households']];
+  var COLS=['#1d2540','#33406e','#5a4a8f','#9d4f86','#e8636d'], geo='tract', key='pov', map=LB.baseMap('map'), layer=null, T=null, Z=null, rentChart=null;
+  LB.districts(map,{weight:1.2,opacity:.6});
+  function metrics(){return geo==='tract'?TM:ZM;}
+  function fmtv(v,u){ if(v==null||isNaN(v)) return '—'; return u==='$'?'$'+LB.fmt(v):u==='%'?LB.fmt(v,1)+'%':u==='pct'?LB.fmt(v,0)+'th':LB.fmt(v); }
+  function med(a){a=a.filter(function(v){return v!=null&&!isNaN(v);}).sort(function(x,y){return x-y;});return a.length?a[Math.floor(a.length/2)]:null;}
+  function quint(a){a=a.filter(function(v){return v!=null&&!isNaN(v);}).sort(function(x,y){return x-y;});return [.2,.4,.6,.8].map(function(q){return a[Math.floor(q*(a.length-1))];});}
+  function fillSelect(){var s=document.getElementById('metric');s.innerHTML=metrics().map(function(m){return '<option value="'+m[0]+'">'+m[1]+'</option>';}).join('');
+    if(!metrics().some(function(m){return m[0]===key;})) key=metrics()[0][0]; s.value=key;}
+  function draw(){
+    var gj=geo==='tract'?T:Z, m=metrics().find(function(x){return x[0]===key;});
+    var inv=key==='tvi_rank', vals=gj.features.map(function(f){return f.properties[key];}), br=quint(vals);
+    var col=function(v){if(v==null||isNaN(v))return '#2a3247';var i=0;while(i<4&&v>br[i])i++;return COLS[inv?4-i:i];};
+    if(layer) map.removeLayer(layer);
+    layer=L.geoJSON(gj,{style:function(f){return{color:'rgba(255,255,255,.2)',weight:.6,fillColor:col(f.properties[key]),fillOpacity:.78};},
+      onEachFeature:function(f,l){var p=f.properties;l.bindTooltip((geo==='tract'?'Tract '+p.tract:'ZIP '+p.zip)+': <b>'+fmtv(p[key],m[2])+'</b>',{sticky:true});l.on('click',function(){profile(p);});}}).addTo(map);
+    LB.legend(document.getElementById('legend'),COLS.map(function(c,i){var j=inv?4-i:i;return [c,j===0?'≤ '+fmtv(br[0],m[2]):j===4?'> '+fmtv(br[3],m[2]):fmtv(br[j-1],m[2])+' – '+fmtv(br[j],m[2])];}).sort(function(){return 0;}));
+    document.getElementById('title').textContent=m[1]+(geo==='tract'?' by census tract':' by ZIP code');
+    document.getElementById('desc').textContent=m[3];
+    profile(null);
+  }
+  function profile(p){
+    var list=metrics(), gj=geo==='tract'?T:Z, t=document.getElementById('prof');
+    document.getElementById('profTitle').textContent=p?(geo==='tract'?'Tract '+p.tract:'ZIP '+p.zip):'Long Beach';
+    document.getElementById('profSub').textContent=p?'Compared with the citywide median':'Median across '+(geo==='tract'?'tracts':'ZIP codes');
+    t.innerHTML='<tr><th>Measure</th><th class="n">'+(p?'Here':'Median')+'</th>'+(p?'<th class="n">City</th>':'')+'</tr>'+list.map(function(m){
+      var c=med(gj.features.map(function(f){return f.properties[m[0]];}));
+      return '<tr><td>'+m[1]+'</td><td class="n">'+fmtv(p?p[m[0]]:c,m[2])+'</td>'+(p?'<td class="n" style="color:var(--faint)">'+fmtv(c,m[2])+'</td>':'')+'</tr>';}).join('');
+    if(geo==='tract') rent(p);
+    if(p) document.getElementById('readout').innerHTML=geo==='tract'?'<b>Tract '+p.tract+'</b> · '+LB.fmt(p.pop)+' residents · '+LB.fmt(p.hh)+' households':'<b>ZIP '+p.zip+'</b> · JENI category: '+LB.esc(p.jeni_cat||'—');
+  }
+  function rent(p){
+    var yrs=['2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2020'];
+    var city=yrs.map(function(y){return med(T.features.map(function(f){return (f.properties.rent_series||{})[y];}));});
+    var ds=[{label:'Long Beach median',data:city,borderColor:'#4d8ae8',backgroundColor:'#4d8ae8',tension:.25}];
+    if(p&&p.rent_series&&Object.keys(p.rent_series).length) ds.push({label:'Tract '+p.tract,data:yrs.map(function(y){return p.rent_series[y]==null?null:p.rent_series[y];}),borderColor:'#F7BA21',backgroundColor:'#F7BA21',tension:.25});
+    if(rentChart) rentChart.destroy();
+    rentChart=new Chart(document.getElementById('rent'),{type:'line',data:{labels:yrs,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10}}},scales:{y:{ticks:{callback:function(v){return '$'+v;}}}}}});
+  }
+  LB.seg(document.getElementById('geoSeg'),function(v){geo=v;fillSelect();draw();});
+  document.getElementById('metric').onchange=function(e){key=e.target.value;draw();};
+  Promise.all([LB.getJSON('data/acs/lb_tracts_acs.geojson'),LB.getJSON('data/acs/lb_zip_equity.geojson')]).then(function(r){
+    T=r[0]; Z=r[1]; fillSelect(); draw();
+    var F=T.features.map(function(f){return f.properties;}), sum=function(k){return F.reduce(function(a,p){return a+(p[k]||0);},0);};
+    document.getElementById('stats').innerHTML=[[LB.pct(sum('n_pov')/sum('pov_univ')),'In poverty'],[LB.pct(sum('rent_hh')/sum('hh'),0),'Renter households'],['$'+LB.fmt(med(F.map(function(p){return p.med_rent;}))),'Median tract rent']]
+      .map(function(x){return '<div class="stat"><div class="v">'+x[0]+'</div><div class="l">'+x[1]+'</div></div>';}).join('');
+    new Chart(document.getElementById('scatter'),{type:'scatter',data:{datasets:[{data:F.filter(function(p){return p.pov!=null&&p.rent!=null;}).map(function(p){return{x:p.rent,y:p.pov,t:p.tract};}),backgroundColor:'rgba(232,99,109,.7)',pointRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return 'Tract '+c.raw.t+': '+c.raw.x+'% renters, '+c.raw.y+'% poverty';}}}},
+        scales:{x:{title:{display:true,text:'Renter households (%)'},min:0,max:100},y:{title:{display:true,text:'Poverty rate (%)'},beginAtZero:true}}}});
+  });
+})();
+</script>
+</body>
+</html>

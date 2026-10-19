@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Code Violation Hot Spots — LiBRE</title>
+<meta name="description" content="Statistically significant hot and cold spots of housing code violations in Long Beach, compared with 1939 redlining.">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="maps.css">
+</head>
+<body>
+<main class="mp" id="main">
+  <div class="head">
+    <div>
+      <p class="kick">LiBRE · Code Violation Hot Spot Map</p>
+      <h1>Where violations cluster</h1>
+      <p class="sub">A Getis-Ord Gi* hot spot analysis of housing code violations. Red areas have significantly more violations than expected, blue areas significantly fewer. Turn on the 1939 redlining layer to see how today's clusters line up with neighborhoods graded “hazardous” decades ago.</p>
+    </div>
+    <div class="stats" id="stats" aria-live="polite"></div>
+  </div>
+  <div class="controls" role="group" aria-label="Map options">
+    <div class="cg"><span class="lbl" id="hLbl">1939 redlining overlay</span><div class="seg amber" id="hSeg" aria-labelledby="hLbl">
+      <button type="button" data-v="off" class="on">Off</button><button type="button" data-v="on">On</button></div></div>
+  </div>
+  <div class="grid">
+    <section class="card" aria-labelledby="mT">
+      <h2 class="h3" id="mT">Hot spot analysis of code violations</h2><div class="cs">Confidence that a cell is part of a cluster</div>
+      <div class="mapwrap"><div id="map" class="map" role="region" aria-label="Map of code-violation hot and cold spots in Long Beach. A summary table follows the map."></div><div class="loading" id="loading">Loading…</div></div>
+    </section>
+    <div class="rail">
+      <section class="card" aria-labelledby="lT"><h2 class="h3" id="lT">Legend</h2><div class="cs">&nbsp;</div><div class="legend" id="legend"></div></section>
+      <section class="card" aria-labelledby="sT"><h2 class="h3" id="sT">Cells by result</h2><div class="cs">Share of analysis cells</div>
+        <div class="chartbox" style="height:220px"><canvas id="chart" role="img" aria-label="Bar chart of analysis cells by hot spot result. Values are in the table below."></canvas></div>
+        <div class="tablewrap" style="max-height:none"><table id="tbl"><caption class="sr-only">Analysis cells by result</caption></table></div></section>
+    </div>
+  </div>
+  <p class="note">Source: LiBRE hot spot analysis of City of Long Beach code-enforcement cases (Getis-Ord Gi*, fixed-distance neighborhoods); HOLC 1939 grades from Mapping Inequality, University of Richmond. Results are averaged into roughly 110 m grid cells, so no individual property is shown. This page replaces the Code Violation Hot Spot Map on ArcGIS Hub.</p>
+</main>
+<script src="nav.js"></script>
+<script src="maps-common.js"></script>
+<script>
+(function(){
+  var BINS=[[3,'Hot spot, 99% confidence','#d7191c'],[2,'Hot spot, 95% confidence','#f07c4a'],[1,'Hot spot, 90% confidence','#fdb98a'],[0,'Not significant','#3a4258'],[-1,'Cold spot, 90% confidence','#a6c8e8'],[-2,'Cold spot, 95% confidence','#5d9bd5'],[-3,'Cold spot, 99% confidence','#2b6cb0']];
+  var HC={A:'#4daf4a',B:'#377eb8',C:'#F7BA21',D:'#D2333F'};
+  var map=LB.baseMap('map'), holc=null;
+  LB.districts(map,{weight:1,opacity:.5});
+  LB.legend(document.getElementById('legend'),BINS.map(function(b){return [b[2],b[1]];}).concat([['transparent','— 1939 HOLC grade outlines: A green, B blue, C yellow, D red']]));
+  function binColor(v){var b=BINS.find(function(x){return x[0]===v;});return b?b[2]:'#3a4258';}
+  LB.getJSON('data/arcgis/code_violation_hotspots_grid.geojson').then(function(gj){
+    var lyr=L.geoJSON(gj,{style:function(f){var v=f.properties.Gi_Bin,c=binColor(v);return{color:c,weight:.5,opacity:.6,fillColor:c,fillOpacity:v===0?.25:.8};},
+      onEachFeature:function(f,l){var p=f.properties;l.bindTooltip(LB.esc(p.Gi_Text||'')+'<br>Violations in cell: <b>'+LB.fmt(p.Total_Viol)+'</b>',{sticky:true});}}).addTo(map);
+    map.fitBounds(lyr.getBounds(),{padding:[10,10]});
+    document.getElementById('loading').style.display='none';
+    var c={}; gj.features.forEach(function(f){c[f.properties.Gi_Bin]=(c[f.properties.Gi_Bin]||0)+1;}); var n=gj.features.length;
+    var hot=(c[3]||0)+(c[2]||0)+(c[1]||0), cold=(c[-3]||0)+(c[-2]||0)+(c[-1]||0);
+    document.getElementById('stats').innerHTML=[[LB.fmt(n),'Analysis cells'],[LB.pct(hot/n,0),'Hot spot cells'],[LB.pct(cold/n,0),'Cold spot cells']].map(function(x){return '<div class="stat"><div class="v">'+x[0]+'</div><div class="l">'+x[1]+'</div></div>';}).join('');
+    new Chart(document.getElementById('chart'),{type:'bar',data:{labels:BINS.map(function(b){return b[1].replace(' confidence','');}),datasets:[{data:BINS.map(function(b){return c[b[0]]||0;}),backgroundColor:BINS.map(function(b){return b[2];})}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:10}}}}}});
+    document.getElementById('tbl').innerHTML='<caption class="sr-only">Analysis cells by result</caption><thead><tr><th scope="col">Result</th><th scope="col" class="n">Cells</th><th scope="col" class="n">Share</th></tr></thead><tbody>'+BINS.map(function(b){return '<tr><td>'+b[1]+'</td><td class="n">'+LB.fmt(c[b[0]]||0)+'</td><td class="n">'+LB.pct((c[b[0]]||0)/n)+'</td></tr>';}).join('')+'</tbody>';
+  });
+  LB.seg(document.getElementById('hSeg'),function(v){
+    if(v==='on'){ LB.getJSON('data/housing-maps/holc_long_beach.geojson').then(function(gj){ if(holc) return; holc=L.geoJSON(gj,{style:function(f){return{color:HC[f.properties.grade]||'#fff',weight:2.5,fill:false,dashArray:'4 3'};},
+      onEachFeature:function(f,l){l.bindTooltip('1939 HOLC grade '+LB.esc(f.properties.grade)+' ('+LB.esc(f.properties.category||'')+')',{sticky:true});}}).addTo(map); }); }
+    else if(holc){ map.removeLayer(holc); holc=null; }
+  });
+})();
+</script>
+</body>
+</html>

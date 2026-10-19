@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maps &amp; Open Data — LiBRE</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="maps.css">
+</head>
+<body>
+<main class="mp">
+  <div class="head">
+    <div>
+      <p class="kick">LiBRE · Open Data</p>
+      <h1>Maps &amp; open data</h1>
+      <p class="sub">LiBRE's maps and dashboards, rebuilt from our ArcGIS Hub. Every dataset behind them can be downloaded below.</p>
+    </div>
+  </div>
+  <div class="cards">
+    <a class="tile" href="ctpa.html"><h3>Tenant Protections (TPA)</h3><p>Residential parcels by housing type and age, showing who the state's rent cap covers.</p></a>
+    <a class="tile" href="parcels.html"><h3>Parcel Explorer</h3><p>106,000+ parcels by land use, owner type and year built.</p></a>
+    <a class="tile" href="ud-filings.html"><h3>Eviction Filings Over Time</h3><p>Monthly unlawful detainer filings since 2009, and recent filings by ZIP code.</p></a>
+    <a class="tile" href="demographics.html"><h3>Who Owns, Who Rents</h3><p>Owner and renter households by race, 1990–2019, plus 2020 Census blocks.</p></a>
+    <a class="tile" href="neighborhoods.html"><h3>Neighborhood Conditions</h3><p>Poverty, vacancy, rents, income and equity-need indices by tract and ZIP.</p></a>
+    <a class="tile" href="environment.html"><h3>Environmental Burden</h3><p>Air pollution, toxic sites, health and housing burden by tract, plus Justice40 and HUD Qualified Census Tracts.</p></a>
+    <a class="tile" href="hotspots.html"><h3>Violation Hot Spots</h3><p>Where code violations cluster, compared with 1939 redlining.</p></a>
+    <a class="tile" href="assisted-housing.html"><h3>Assisted Housing</h3><p>HUD-subsidized properties and contract end dates, over rent burden.</p></a>
+    <a class="tile" href="evictions.html"><h3>Eviction Dashboard</h3><p>Eviction cases 2005–2025 by district and year.</p></a>
+    <a class="tile" href="code-enforcement.html"><h3>Code Violations</h3><p>Confirmed violations mapped by density and by owner.</p></a>
+    <a class="tile" href="housing-maps.html"><h3>Housing Maps</h3><p>1939 redlining, rent burden, eviction and violation hotspots.</p></a>
+  </div>
+
+  <div class="card" style="margin-top:28px">
+    <h3>Being rebuilt</h3><div class="cs">These ArcGIS Hub tools are being moved here. Until they are, here's what each one covers and where to look in the meantime.</div>
+    <div class="tablewrap" style="max-height:none"><table>
+      <tr><th>Hub tool</th><th>Status</th><th>In the meantime</th></tr>
+      <tr><td><b>Rent Control Dashboard</b></td><td>Planned. The Hub version was never filled in.</td><td>The <a href="ctpa.html">Tenant Protections map</a> shows which homes California's rent cap (AB 1482) likely covers and which are exempt because they're newer than 15 years.</td></tr>
+      <tr><td><b>Where LiBRE Shows Up (3D)</b></td><td>Coming back as a 2D map once the workshop-site list is added to this repo.</td><td>See <a href="team.html">Our Team</a> for the organizing and the people behind it.</td></tr>
+      <tr><td><b>Code Violation 3D views</b></td><td>Retired. The 3D pillars needed paid ArcGIS hosting.</td><td><a href="hotspots.html">Violation Hot Spots</a> and <a href="code-enforcement.html">Code Violations</a> show the same patterns in 2D.</td></tr>
+      <tr><td><b>LB Zoning Map</b></td><td>Not copied. Zoning is maintained by the City of Long Beach.</td><td>Zoning codes are on each parcel in the <a href="parcels.html">Parcel Explorer</a>.</td></tr>
+    </table></div>
+  </div>
+
+  <div class="card" style="margin-top:28px">
+    <h3>Download the data</h3><div class="cs">GeoJSON in WGS84 (EPSG:4326) and CSV. Free to reuse with credit to LiBRE.</div>
+    <div class="tablewrap" style="max-height:none"><table id="cat"></table></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Privacy</h3>
+    <div class="cs" style="font-size:13px;color:var(--soft);line-height:1.7;padding-bottom:16px">
+      These files are cleaned versions of LiBRE's ArcGIS layers. Before publishing we removed every property-owner name, including companies (owners are shown only by type), owner mailing addresses, court and code-enforcement case numbers, free-text case notes, and assessor staff IDs. Eviction and code-violation records are published only as counts by district, year, ZIP or a roughly 110 m grid, never as individual cases or addresses. Survey responses are not published.
+    </div>
+  </div>
+</main>
+<script src="nav.js"></script>
+<script>
+var D=[
+ ['tpa_parcels/d1–d9.geojson','Residential parcels by housing type, year built and district (TPA map)','tpa_parcels/'],
+ ['lb_parcels/d1–d9.geojson','All parcels: land use, zoning, year built and owner type','lb_parcels/'],
+ ['ud_filings_monthly.csv','Unlawful detainer filings per month, citywide','ud_filings_monthly.csv'],
+ ['ud_filings_by_zip.geojson','UD filings by ZIP code, monthly, Jun 2023 – Mar 2024','ud_filings_by_zip.geojson'],
+ ['evictions_by_year_district.csv','Eviction cases by year and council district','evictions_by_year_district.csv'],
+ ['code_violation_cases.csv','Code-enforcement cases: type, status, dates, building type, owner type, ~110 m location','code_violation_cases.csv'],
+ ['code_violation_hotspots_grid.geojson','Getis-Ord Gi* hot spot analysis of code violations, ~110 m grid','code_violation_hotspots_grid.geojson'],
+ ['owner_renter_by_race_1990_2010.geojson','Owner and renter units by race, by tract, 1990/2000/2010','owner_renter_by_race_1990_2010.geojson'],
+ ['acs_tracts_2010_2019.geojson','ACS S2502 tenure by race (percent), by tract, 2010–2019','acs_tracts_2010_2019.geojson'],
+ ['census_blocks_2020.geojson','2020 Census population by race, Long Beach blocks','census_blocks_2020.geojson'],
+ ['acs/lb_tracts_acs.geojson','ACS poverty, tenure, vacancy, rent, income and race by 2020 tract, plus median contract rent 2010–2020','../acs/lb_tracts_acs.geojson'],
+ ['acs/lb_zip_equity.geojson','LA County JENI and Tenant Vulnerability Index by ZIP','../acs/lb_zip_equity.geojson'],
+ ['acs/lb_tracts_environment.geojson','Justice40 (CEJST) environmental, health and housing percentiles plus HUD Qualified Census Tracts, by tract','../acs/lb_tracts_environment.geojson'],
+ ['hud_assisted_properties.geojson','HUD-assisted multifamily properties and subsidy contracts','hud_assisted_properties.geojson'],
+ ['holc_los_angeles_1939.geojson','1939 HOLC (redlining) grades, Los Angeles area','holc_los_angeles_1939.geojson'],
+ ['courthouse_districts.geojson','LA Superior Court districts serving Long Beach (South & Southeast)','courthouse_districts.geojson'],
+ ['summary.json','Pre-computed totals used by the dashboards','summary.json']];
+document.getElementById('cat').innerHTML='<tr><th>File</th><th>What it contains</th></tr>'+D.map(function(d){
+  var href='data/arcgis/'+d[2]; var link=d[2].slice(-1)==='/'
+    ? [1,2,3,4,5,6,7,8,9].map(function(i){return '<a href="'+href+'d'+i+'.geojson" download>d'+i+'</a>';}).join(' · ')
+    : '<a href="'+href+'" download>'+d[0]+'</a>';
+  return '<tr><td>'+(d[2].slice(-1)==='/'?d[0].split('/')[0]+'/<br>'+link:link)+'</td><td>'+d[1]+'</td></tr>';}).join('');
+</script>
+</body>
+</html>

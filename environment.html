@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Environmental Burden — LiBRE</title>
+<meta name="description" content="Pollution, health and housing burdens across Long Beach census tracts, from the federal Climate and Economic Justice Screening Tool.">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="maps.css">
+</head>
+<body>
+<main class="mp" id="main">
+  <div class="head">
+    <div>
+      <p class="kick">LiBRE · Enviro Dashboard</p>
+      <h1>Environmental burden</h1>
+      <p class="sub">Air pollution, toxic sites, health outcomes and housing burden for every Long Beach census tract, shown as national percentiles. Tracts outlined in amber are federally identified as disadvantaged communities.</p>
+    </div>
+    <div class="stats" id="stats" aria-live="polite"></div>
+  </div>
+  <div class="controls" role="group" aria-label="Map options">
+    <div class="cg"><label for="metric">Measure</label><select id="metric"></select></div>
+    <div class="cg"><span class="lbl" id="olLbl">Outline</span><div class="seg" id="olSeg" role="group" aria-labelledby="olLbl">
+      <button type="button" data-v="j40" class="on" aria-pressed="true">Disadvantaged (Justice40)</button><button type="button" data-v="qct" aria-pressed="false">HUD Qualified Census Tracts</button><button type="button" data-v="none" aria-pressed="false">None</button></div></div>
+  </div>
+  <div class="grid">
+    <section class="card" aria-labelledby="title">
+      <h2 class="h3" id="title">Map</h2><div class="cs" id="desc">&nbsp;</div>
+      <div class="mapwrap"><div id="map" class="map" role="region" aria-label="Map of Long Beach census tracts colored by the selected measure. The same values are listed in the table below the map."></div></div>
+      <div class="readout"><span id="readout" aria-live="polite">Select a tract on the map or in the table for its full profile.</span></div>
+    </section>
+    <div class="rail">
+      <section class="card" aria-labelledby="lgT"><h2 class="h3" id="lgT">Legend</h2><div class="cs">National percentile (higher = more burdened)</div><div class="legend" id="legend"></div></section>
+      <section class="card" aria-labelledby="profTitle"><h2 class="h3" id="profTitle">Profile</h2><div class="cs" id="profSub">Long Beach median</div><div class="tablewrap" style="max-height:340px"><table id="prof"><caption class="sr-only">Environmental and health percentiles</caption></table></div></section>
+    </div>
+  </div>
+  <section class="card" style="margin-top:16px" aria-labelledby="cmpT">
+    <h2 class="h3" id="cmpT">Disadvantaged vs. other Long Beach tracts</h2><div class="cs">Median national percentile for each group</div>
+    <div class="chartbox" style="height:300px"><canvas id="cmp" role="img" aria-label="Bar chart comparing median percentiles for disadvantaged and other tracts. Values are in the table that follows."></canvas></div>
+    <div class="tablewrap" style="max-height:none"><table id="cmpTable"><caption class="sr-only">Median percentiles by tract group</caption></table></div>
+  </section>
+  <details class="card" style="margin-top:16px;padding:0 16px 14px">
+    <summary style="padding:14px 0;cursor:pointer;font-weight:600">All tracts as a table</summary>
+    <div class="tablewrap"><table id="all"><caption class="sr-only">Selected measure for every tract</caption></table></div>
+  </details>
+  <p class="note">Source: Council on Environmental Quality, Climate and Economic Justice Screening Tool v1.0 (2022 release, 2010 census tracts), and HUD 2025 Qualified Census Tracts. Percentiles compare each tract with every tract in the United States. This page replaces LiBRE's Enviro Dashboard on ArcGIS Hub.</p>
+</main>
+<script src="nav.js"></script>
+<script src="maps-common.js"></script>
+<script>
+(function(){
+  var M=[['pm25','Fine particulate matter (PM2.5)','Air pollution exposure'],['diesel','Diesel particulate matter','Exposure from trucks, ports and rail'],['traffic','Traffic proximity and volume','Nearby traffic'],
+    ['haz_waste','Hazardous waste facilities','Proximity to treatment, storage and disposal sites'],['rmp','Risk Management Plan facilities','Proximity to facilities handling dangerous chemicals'],['superfund','Superfund sites','Proximity to National Priorities List sites'],
+    ['ust','Leaking underground storage tanks','Density of underground storage tanks'],['wastewater','Wastewater discharge','Toxic concentrations in nearby streams'],
+    ['asthma','Asthma','Share of adults with asthma'],['heart','Heart disease','Share of adults with heart disease'],['diabetes','Diabetes','Share of adults with diabetes'],
+    ['lead_paint','Lead paint risk','Homes likely to have lead paint (pre-1960 housing, low value)'],['housing_burden','Housing cost burden','Low-income households paying 30%+ of income on housing'],
+    ['energy_burden','Energy cost burden','Energy costs as a share of income'],['low_income','Low income','Households under 200% of the poverty line'],['ling_iso','Linguistic isolation','Households where no adult speaks English very well']];
+  var COLS=['#1d2540','#33406e','#5a4a8f','#9d4f86','#e8636d'], BR=[20,40,60,80], key='pm25', ol='j40', map=LB.baseMap('map'), layer=null, T=null;
+  var sel=document.getElementById('metric'); sel.innerHTML=M.map(function(m){return '<option value="'+m[0]+'">'+m[1]+'</option>';}).join('');
+  LB.districts(map,{weight:1,opacity:.45});
+  function col(v){if(v==null||isNaN(v))return '#2a3247';var i=0;while(i<4&&v>BR[i])i++;return COLS[i];}
+  function med(a){a=a.filter(function(v){return v!=null&&!isNaN(v);}).sort(function(x,y){return x-y;});return a.length?a[Math.floor(a.length/2)]:null;}
+  function pc(v){return v==null||isNaN(v)?'—':Math.round(v)+'th';}
+  LB.legend(document.getElementById('legend'),[['#1d2540','0–20th'],['#33406e','20–40th'],['#5a4a8f','40–60th'],['#9d4f86','60–80th'],['#e8636d','80–100th'],['#2a3247','No data']]);
+  function style(f){var p=f.properties,o=(ol==='j40'&&p.j40)||(ol==='qct'&&p.qct);return{color:o?'#F7BA21':'rgba(255,255,255,.18)',weight:o?2.2:.5,fillColor:col(p[key]),fillOpacity:.8};}
+  function draw(){
+    var m=M.find(function(x){return x[0]===key;});
+    if(layer) map.removeLayer(layer);
+    layer=L.geoJSON(T,{style:style,onEachFeature:function(f,l){var p=f.properties;l.bindTooltip('Tract '+p.tract+': <b>'+pc(p[key])+' percentile</b>'+(p.j40?'<br>Disadvantaged community':''),{sticky:true});l.on('click',function(){profile(p);});}}).addTo(map);
+    document.getElementById('title').textContent=m[1]+' by census tract'; document.getElementById('desc').textContent=m[2];
+    var rows=T.features.map(function(f){return f.properties;}).filter(function(p){return p[key]!=null;}).sort(function(a,b){return b[key]-a[key];});
+    document.getElementById('all').innerHTML='<caption class="sr-only">'+m[1]+' percentile for every tract</caption><thead><tr><th scope="col">Tract</th><th scope="col" class="n">Percentile</th><th scope="col">Disadvantaged</th><th scope="col">QCT</th></tr></thead><tbody>'+
+      rows.map(function(p){return '<tr><td><button type="button" class="linkish" data-g="'+p.geoid+'">'+p.tract+'</button></td><td class="n">'+pc(p[key])+'</td><td>'+(p.j40?'Yes':'No')+'</td><td>'+(p.qct?'Yes':'No')+'</td></tr>';}).join('')+'</tbody>';
+  }
+  function profile(p){
+    var t=document.getElementById('prof');
+    document.getElementById('profTitle').textContent=p?'Tract '+p.tract:'Profile';
+    document.getElementById('profSub').textContent=p?(p.j40?'Identified as disadvantaged':'Not identified as disadvantaged')+(p.qct?' · HUD Qualified Census Tract':''):'Long Beach median';
+    t.innerHTML='<caption class="sr-only">Percentiles</caption><thead><tr><th scope="col">Measure</th><th scope="col" class="n">'+(p?'Tract':'Median')+'</th>'+(p?'<th scope="col" class="n">City</th>':'')+'</tr></thead><tbody>'+M.map(function(m){
+      var c=med(T.features.map(function(f){return f.properties[m[0]];}));
+      return '<tr><td>'+m[1]+'</td><td class="n">'+pc(p?p[m[0]]:c)+'</td>'+(p?'<td class="n" style="color:var(--faint)">'+pc(c)+'</td>':'')+'</tr>';}).join('')+'</tbody>';
+    if(p) document.getElementById('readout').innerHTML='<b>Tract '+p.tract+'</b> selected.';
+  }
+  sel.onchange=function(e){key=e.target.value;draw();};
+  LB.seg(document.getElementById('olSeg'),function(v){ol=v;if(layer)layer.setStyle(style);});
+  document.getElementById('all').addEventListener('click',function(e){var b=e.target.closest('button[data-g]');if(!b)return;var f=T.features.find(function(x){return x.properties.geoid===b.dataset.g;});if(f){profile(f.properties);map.fitBounds(L.geoJSON(f).getBounds(),{maxZoom:14});document.getElementById('profTitle').scrollIntoView({block:'nearest'});}});
+  LB.getJSON('data/acs/lb_tracts_environment.geojson').then(function(gj){
+    T=gj; draw(); profile(null);
+    var P=gj.features.map(function(f){return f.properties;}), dis=P.filter(function(p){return p.j40;}), oth=P.filter(function(p){return !p.j40;});
+    document.getElementById('stats').innerHTML=[[dis.length+' of '+P.length,'Tracts disadvantaged'],[P.filter(function(p){return p.qct;}).length,'HUD Qualified Tracts'],[pc(med(P.map(function(p){return p.diesel;}))),'Median diesel percentile']]
+      .map(function(x){return '<div class="stat"><div class="v">'+x[0]+'</div><div class="l">'+x[1]+'</div></div>';}).join('');
+    var keys=M.slice(0,12);
+    var a=keys.map(function(m){return med(dis.map(function(p){return p[m[0]];}));}), b=keys.map(function(m){return med(oth.map(function(p){return p[m[0]];}));});
+    new Chart(document.getElementById('cmp'),{type:'bar',data:{labels:keys.map(function(m){return m[1].replace(/ \(.*\)/,'');}),datasets:[{label:'Disadvantaged tracts',data:a,backgroundColor:'#e8636d'},{label:'Other tracts',data:b,backgroundColor:'#4d8ae8'}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10}}},scales:{y:{min:0,max:100,title:{display:true,text:'National percentile'}},x:{ticks:{autoSkip:false,maxRotation:60,minRotation:40,font:{size:10}}}}}});
+    document.getElementById('cmpTable').innerHTML='<caption class="sr-only">Median percentiles by tract group</caption><thead><tr><th scope="col">Measure</th><th scope="col" class="n">Disadvantaged</th><th scope="col" class="n">Other</th></tr></thead><tbody>'+keys.map(function(m,i){return '<tr><td>'+m[1]+'</td><td class="n">'+pc(a[i])+'</td><td class="n">'+pc(b[i])+'</td></tr>';}).join('')+'</tbody>';
+  });
+})();
+</script>
+</body>
+</html>
