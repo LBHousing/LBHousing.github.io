@@ -1,0 +1,18 @@
+menu_group,wix_page_title,wix_url_slug,embed_src,height_desktop_px,height_tablet_px,height_mobile_px
+Data & Maps (landing),Data Hub,/data-hub,https://lbhousing.github.io/index.html?embed,2530,2360,3510
+Data & Maps (landing),Maps & Open Data,/maps-data,https://lbhousing.github.io/data.html?embed,1870,2360,4560
+Neighborhoods,District Statistics,/district-stats,https://lbhousing.github.io/district-stats.html?embed,7930,7850,10000
+Neighborhoods,Environmental Burden,/environmental-burden,https://lbhousing.github.io/environment.html?embed,2070,2690,3000
+Neighborhoods,Neighborhood Conditions,/neighborhood-conditions,https://lbhousing.github.io/neighborhoods.html?embed,1460,2400,2660
+Neighborhoods,"Who Owns, Who Rents",/who-owns-who-rents,https://lbhousing.github.io/demographics.html?embed,1100,1560,1750
+Ownership,Parcel Explorer,/parcel-explorer,https://lbhousing.github.io/parcels.html?embed,1100,1710,1920
+Ownership,Tenant Protections (TPA),/tenant-protections,https://lbhousing.github.io/ctpa.html?embed,1120,1670,1910
+Ownership,Who Owns Long Beach,/who-owns-long-beach,https://lbhousing.github.io/ownership.html?embed,14170,13490,13530
+Evictions,Eviction Dashboard,/evictions,https://lbhousing.github.io/evictions.html?embed,3510,4240,4710
+Evictions,Eviction Filings,/eviction-filings,https://lbhousing.github.io/ud-filings.html?embed,1290,1940,2060
+Housing Conditions,Assisted Housing,/assisted-housing,https://lbhousing.github.io/assisted-housing.html?embed,1120,1730,1780
+Housing Conditions,Code Violations,/code-enforcement,https://lbhousing.github.io/code-enforcement.html?embed,1690,2750,3190
+Housing Conditions,Housing Maps,/housing-maps,https://lbhousing.github.io/housing-maps.html?embed,4490,4860,8080
+Housing Conditions,Violation Hot Spots,/violation-hotspots,https://lbhousing.github.io/hotspots.html?embed,1330,1930,2130
+Stories,Housing Is Health,/housing-is-health,https://lbhousing.github.io/story.html?embed,18810,18930,21750
+About,Data Team,/data-team,https://lbhousing.github.io/team.html?embed,4540,6750,9700
