@@ -21,7 +21,7 @@
 <style>
 :root{
   --ink:#f1f5f9; --soft:#9aa6bd; --faint:#6f7a91; --line:rgba(255,255,255,.1);
-  --panel:#131a29; --panel2:#0e1526; --amber:#F7BA21; --blue:#4d8ae8; --red:#e8636d; --green:#34d399; --purple:#a884e8;
+  --panel:#131a29; --panel2:#0e1526; --amber:#F7BA21; --blue:#6ea0f0; --red:#e8636d; --green:#34d399; --purple:#a884e8;
   --serif:'Instrument Serif',Georgia,serif; --sans:'Outfit',system-ui,sans-serif;
   color-scheme:dark;
 }
@@ -133,7 +133,7 @@ else if(W==='race'){
   document.querySelectorAll('.displace .num').forEach(function(n){n.classList.add('v');});
 }
 else if(W==='owners'){
-  var O=[['Avanath Seaport LP',66],['Penn Properties LLC',63],['WP LBMF LLC',56],['923 Long Beach LLC',52],['Dawn Patrol LLC',50],['Ocean Structure Inc',44]];
+  var O=[['LP owner #1',66],['LLC owner #1',63],['LLC owner #2',56],['LLC owner #3',52],['LLC owner #4',50],['Corporate owner #1',44]];
   var max=O[0][1];
   app.innerHTML='<div class="card"><div class="lbh"><span>Most-cited corporate landlords</span><span>violations</span></div>'+
     O.map(function(o){return '<div class="obar"><div class="ol"><b>'+o[0]+'</b><span class="ov">'+o[1]+'</span></div>'+
