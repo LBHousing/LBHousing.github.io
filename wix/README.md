@@ -1,19 +1,19 @@
-# Bringing the LiBRE data pages into wearelibre.org (Wix Studio)
+# Bringing the LiBRE data pages into wearelbre.org (Wix Studio)
 
 Every page in this repo works two ways:
 
 - **Standalone:** `https://lbhousing.github.io/ctpa.html`, with the LiBRE nav and footer.
-- **Embedded:** `https://lbhousing.github.io/ctpa.html?embed`. The nav and footer are hidden so the Wix header and footer take over. Links between data pages move the whole Wix page to the matching wearelibre.org URL (set in `WIX` inside `nav.js`). External links open in a new tab.
+- **Embedded:** `https://lbhousing.github.io/ctpa.html?embed`. The nav and footer are hidden so the Wix header and footer take over. Links between data pages move the whole Wix page to the matching wearelbre.org URL (set in `WIX` inside `nav.js`). External links open in a new tab.
 
 Hosting stays free on GitHub Pages. Wix only displays the pages, so nothing here uses ArcGIS credits.
 
 ## 1. (Optional, recommended) Serve the pages from your own domain
 
-So visitors and search engines see `maps.wearelibre.org` instead of `github.io`:
+So visitors and search engines see `maps.wearelbre.org` instead of `github.io`:
 
-1. In Wix: **Settings → Domains → wearelibre.org → Manage DNS records → CNAME → Add record**. Host `maps`, value `lbhousing.github.io`.
-2. In GitHub: **LBHousing/LBHousing.github.io → Settings → Pages → Custom domain** → `maps.wearelibre.org` → Save. Check **Enforce HTTPS** once the certificate is issued (it can take up to a day).
-3. In `wix/pages.csv` and the steps below, swap `lbhousing.github.io` for `maps.wearelibre.org`.
+1. In Wix: **Settings → Domains → wearelbre.org → Manage DNS records → CNAME → Add record**. Host `maps`, value `lbhousing.github.io`.
+2. In GitHub: **LBHousing/LBHousing.github.io → Settings → Pages → Custom domain** → `maps.wearelbre.org` → Save. Check **Enforce HTTPS** once the certificate is issued (it can take up to a day).
+3. In `wix/pages.csv` and the steps below, swap `lbhousing.github.io` for `maps.wearelbre.org`.
 
 Do the GitHub step only after the DNS record exists, or the github.io address will stop resolving in the meantime.
 
@@ -28,7 +28,7 @@ In the **unpublished dev copy** of the site, for each row below:
 
 | Menu group | Wix page title | URL slug | embed src (append to https://lbhousing.github.io/) | Desktop px | Tablet px | Mobile px |
 |---|---|---|---|---|---|---|
-| Data & Maps (landing) | Data Hub | `/data-hub` | `index.html?embed` | 2530 | 2360 | 3510 |
+| Data & Maps (landing) | Data Hub | `/data-hub` | `data-hub.html?embed` | 2530 | 2360 | 3510 |
 | Data & Maps (landing) | Maps & Open Data | `/maps-data` | `data.html?embed` | 1870 | 2360 | 4560 |
 | Neighborhoods | District Statistics | `/district-stats` | `district-stats.html?embed` | 7930 | 7850 | 10000 |
 | Neighborhoods | Environmental Burden | `/environmental-burden` | `environment.html?embed` | 2070 | 2690 | 3000 |

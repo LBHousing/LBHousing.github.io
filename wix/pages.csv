@@ -1,5 +1,5 @@
 menu_group,wix_page_title,wix_url_slug,embed_src,height_desktop_px,height_tablet_px,height_mobile_px
-Data & Maps (landing),Data Hub,/data-hub,https://lbhousing.github.io/index.html?embed,2530,2360,3510
+Data & Maps (landing),Data Hub,/data-hub,https://lbhousing.github.io/data-hub.html?embed,2530,2360,3510
 Data & Maps (landing),Maps & Open Data,/maps-data,https://lbhousing.github.io/data.html?embed,1870,2360,4560
 Neighborhoods,District Statistics,/district-stats,https://lbhousing.github.io/district-stats.html?embed,7930,7850,10000
 Neighborhoods,Environmental Burden,/environmental-burden,https://lbhousing.github.io/environment.html?embed,2070,2690,3000
