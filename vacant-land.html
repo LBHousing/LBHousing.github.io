@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Vacant City-Owned Land — Long Beach | LiBRE</title>
+<meta name="description" content="Interactive map of vacant City of Long Beach-owned parcels — potential sites for social housing and community gardens. By LiBRE.">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{--bg:#0a0e1a;--panel:#131a29;--ink:#f1f5f9;--soft:#9aa6bd;--faint:#6f7a91;--line:rgba(255,255,255,.1);
+  --amber:#F7BA21;--green:#34d399;--blue:#4d8ae8;--gray:#8a94a6;
+  --serif:'Instrument Serif',Georgia,serif;--sans:'Outfit',system-ui,sans-serif;color-scheme:dark;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);display:flex;flex-direction:column;overflow:hidden}
+header{padding:14px clamp(16px,4vw,26px);border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0c1324,#0a0e1a);flex:none}
+.hrow{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;justify-content:space-between}
+.eyebrow{font-size:10.5px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:5px}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(22px,3.6vw,30px);line-height:1}
+.sub{font-size:13px;color:var(--soft);margin-top:5px;max-width:70ch}
+.sub b{color:var(--ink)}
+.links{display:flex;gap:8px;flex-wrap:wrap;flex:none}
+.links a{font-size:12.5px;font-weight:500;text-decoration:none;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 12px}
+.links a:hover{border-color:var(--amber);color:var(--amber)}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.chip{font-size:12px;font-weight:500;color:var(--soft);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:6px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;user-select:none}
+.chip .d{width:10px;height:10px;border-radius:50%;flex:none}
+.chip.off{opacity:.4}
+.count{font-size:12px;color:var(--faint);margin-left:auto}
+#map{flex:1;min-height:0;background:#070a14}
+.leaflet-container{background:#070a14;font-family:var(--sans)}
+.pop{font-family:var(--sans);font-size:12.5px;color:#e2e8f0;line-height:1.5;min-width:180px}
+.pop b.addr{color:#fff;font-size:13.5px;display:block;margin-bottom:5px}
+.pop .r{display:flex;justify-content:space-between;gap:14px;margin-top:2px}
+.pop .r .k{color:var(--faint)}
+.pop .yrs{color:var(--amber);font-weight:600}
+.pop .tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:5px;margin-bottom:6px}
+.leaflet-popup-content-wrapper{background:#131a29;color:#e2e8f0;border-radius:11px}
+.leaflet-popup-tip{background:#131a29}
+@media(max-width:620px){.count{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div>
+      <div class="eyebrow">LiBRE · Long Beach · public land for housing &amp; gardens</div>
+      <h1>Vacant City-Owned Land</h1>
+      <div class="sub"><b>237 city-owned vacant parcels</b> the city has held a <b>median of 23 years</b> — potential sites for social housing &amp; community gardens. Click a point for details.</div>
+    </div>
+    <div class="links">
+      <a href="vacant-land-map.pdf" target="_blank">⤓ PDF map</a>
+      <a href="data/vacant-land/Long_Beach_vacant_city_land.csv" target="_blank">⤓ Full list (CSV)</a>
+    </div>
+  </div>
+  <div class="chips" id="chips"></div>
+</header>
+<div id="map"></div>
+<script>
+var CATS=[
+  ['Prime residential','#34d399',7,'Prime residential (housing / garden)'],
+  ['Commercial/industrial infill','#F7BA21',5.5,'Commercial / industrial infill'],
+  ['Other city parcel','#4d8ae8',5,'Other city parcel'],
+  ['Civic/port/airport','#8a94a6',4,'Civic / port / airport']
+];
+var STY={}; CATS.forEach(function(c){STY[c[0]]={col:c[1],r:c[2]};});
+var active={}; CATS.forEach(function(c){active[c[0]]=true;});
+
+var map=L.map('map',{zoomControl:true,attributionControl:false,minZoom:10,maxZoom:18}).setView([33.80,-118.15],12);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,pane:'shadowPane'}).addTo(map);
+
+var layer=L.layerGroup().addTo(map), DATA=null;
+function money(n){return n?'$'+n.toLocaleString():'—';}
+function popup(p){
+  var s=STY[p.tier]||{col:'#999'};
+  return '<div class="pop"><span class="tag" style="color:'+s.col+';background:'+s.col+'22">'+p.tier+'</span>'+
+    '<b class="addr">'+p.addr+'</b>'+
+    '<div class="r"><span class="k">Use</span><span>'+p.use+'</span></div>'+
+    '<div class="r"><span class="k">Lot size</span><span>'+p.acres.toFixed(3)+' ac · '+p.sqft.toLocaleString()+' sq ft</span></div>'+
+    '<div class="r"><span class="k">Zoning</span><span>'+p.zone+'</span></div>'+
+    '<div class="r"><span class="k">Years city-owned</span><span class="yrs">'+p.yrs+' yrs</span></div>'+
+    '<div class="r"><span class="k">Acquired</span><span>'+p.acq+'</span></div>'+
+    '<div class="r"><span class="k">Land value</span><span>'+money(p.val)+'</span></div>'+
+    '<div class="r"><span class="k">ZIP · AIN</span><span>'+p.zip+'</span></div></div>';
+}
+function draw(){
+  layer.clearLayers(); if(!DATA)return; var n=0;
+  DATA.features.forEach(function(f){
+    var p=f.properties; if(!active[p.tier])return; n++;
+    var s=STY[p.tier]||{col:'#999',r:5}, c=f.geometry.coordinates;
+    L.circleMarker([c[1],c[0]],{radius:s.r,fillColor:s.col,fillOpacity:.82,color:'#0a0e1a',weight:.8})
+      .bindPopup(popup(p)).addTo(layer);
+  });
+  document.getElementById('cnt').textContent=n+' of '+DATA.features.length+' parcels shown';
+}
+var chips=document.getElementById('chips');
+CATS.forEach(function(c){
+  var cnt=0; // filled after load
+  var b=document.createElement('div');b.className='chip';b.dataset.t=c[0];
+  b.innerHTML='<span class="d" style="background:'+c[1]+'"></span>'+c[3];
+  b.onclick=function(){active[c[0]]=!active[c[0]];b.classList.toggle('off',!active[c[0]]);draw();};
+  chips.appendChild(b);
+});
+var cEl=document.createElement('span');cEl.className='count';cEl.id='cnt';chips.appendChild(cEl);
+
+fetch('data/vacant-land/vacant_lots.geojson').then(function(r){return r.json();}).then(function(g){
+  DATA=g;
+  // annotate chip labels with counts
+  var byc={}; g.features.forEach(function(f){byc[f.properties.tier]=(byc[f.properties.tier]||0)+1;});
+  CATS.forEach(function(c){var b=chips.querySelector('[data-t="'+c[0]+'"]');if(b)b.innerHTML+=' <b style="color:#fff">'+(byc[c[0]]||0)+'</b>';});
+  var b=L.geoJSON(g).getBounds(); if(b.isValid())map.fitBounds(b,{padding:[30,30]});
+  draw();
+}).catch(function(){document.getElementById('map').innerHTML='<div style="padding:40px;color:#64748b;text-align:center">Map data could not load.</div>';});
+addEventListener('resize',function(){map.invalidateSize();});
+</script>
+</body>
+</html>
